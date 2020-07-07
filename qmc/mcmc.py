@@ -6,6 +6,11 @@ def normal_proposal(old_point):
     # symmetric
     return Normal(old_point, 0.3*torch.ones_like(old_point)).sample()
 
+def clip_normal_proposal(old_point):
+    samp = Normal(old_point, 0.3*torch.ones_like(old_point)).sample()
+    samp.clamp_min_(0.0)
+    return samp
+
 def symmetric_mh_acceptance_ratio(logprob, old_config, new_config):
     logacc = torch.min(torch.tensor(0.0), logprob(new_config) - logprob(old_config))
     return torch.exp(logacc)
@@ -27,6 +32,24 @@ def metropolis_symmetric(trialfunc, proposal, num_walkers=2,num_steps=100):
         with torch.no_grad():
             acc = symmetric_mh_acceptance_ratio(trialfunc, config, next_config)
         # acc shape should be (num_walkers, 1)
+            accept_or_reject = Bernoulli(acc).sample() # accept is 1, reject is 0
+            config = accept_or_reject*next_config + (1.0 - accept_or_reject)*config
+            all_configs.append(config.clone()) # can we skip clone here?
+    return torch.stack(all_configs, dim=1) # dim=1 to make walkers be the batch dim
+
+def metropolis_asymmetric(trialfunc, proposal, num_walkers=2,num_steps=100):
+    # with more walkers
+    # design choice: walkers are always the batch dim
+    config = torch.zeros(num_walkers, 1)
+    all_configs = []
+    for step in range(num_steps):
+        next_config, next_current_logprob, current_next_logprob = proposal(config)
+        with torch.no_grad():
+            acc = asymmetric_mh_acceptance_ratio(trialfunc,
+                                                 next_current_logprob,
+                                                 current_next_logprob,
+                                                 config, next_config)
+            # acc shape should be (num_walkers, 1)
             accept_or_reject = Bernoulli(acc).sample() # accept is 1, reject is 0
             config = accept_or_reject*next_config + (1.0 - accept_or_reject)*config
             all_configs.append(config.clone()) # can we skip clone here?
