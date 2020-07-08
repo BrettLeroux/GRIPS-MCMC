@@ -1,10 +1,17 @@
 import torch
-from torch.distributions import Normal, Bernoulli
+from torch.distributions import Normal, Bernoulli, MultivariateNormal
 import numpy as np
 
 def normal_proposal(old_point):
     # symmetric
     return Normal(old_point, 0.3*torch.ones_like(old_point)).sample()
+
+def clip_mvnormal_proposal(old_point):
+    # batches of old points, possibly with weird shapes
+    samp = MultivariateNormal(old_point, 0.3*torch.eye(old_point.shape[-1])).sample()
+    samp.clamp_min_(0.0)
+    samp.clamp_max_(1.0)
+    return samp
 
 def clip_normal_proposal(old_point):
     samp = Normal(old_point, 0.3*torch.ones_like(old_point)).sample()
@@ -22,25 +29,25 @@ def asymmetric_mh_acceptance_ratio(logprob, new_old_logprob, old_new_logprob, ol
                       - new_old_logprob)
     return torch.exp(logacc)
 
-def metropolis_symmetric(trialfunc, proposal, num_walkers=2,num_steps=100):
+def metropolis_symmetric(trialfunc, init_config, proposal, num_walkers=2,num_steps=100):
     # with more walkers
     # design choice: walkers are always the batch dim
-    config = torch.zeros(num_walkers, 1)
+    config = init_config
     all_configs = []
     for step in range(num_steps):
         next_config = proposal(config)
         with torch.no_grad():
-            acc = symmetric_mh_acceptance_ratio(trialfunc, config, next_config)
-        # acc shape should be (num_walkers, 1)
+            acc = symmetric_mh_acceptance_ratio(trialfunc, config, next_config).unsqueeze(-1)
+        # acc shape should be (num_walkers, 1) hence need unsqueeze
             accept_or_reject = Bernoulli(acc).sample() # accept is 1, reject is 0
             config = accept_or_reject*next_config + (1.0 - accept_or_reject)*config
             all_configs.append(config.clone()) # can we skip clone here?
     return torch.stack(all_configs, dim=1) # dim=1 to make walkers be the batch dim
 
-def metropolis_asymmetric(trialfunc, proposal, num_walkers=2,num_steps=100):
+def metropolis_asymmetric(trialfunc, init_config, proposal, num_walkers=2,num_steps=100):
     # with more walkers
     # design choice: walkers are always the batch dim
-    config = torch.zeros(num_walkers, 1)
+    config = init_config
     all_configs = []
     for step in range(num_steps):
         next_config, next_current_logprob, current_next_logprob = proposal(config)
@@ -55,9 +62,9 @@ def metropolis_asymmetric(trialfunc, proposal, num_walkers=2,num_steps=100):
             all_configs.append(config.clone()) # can we skip clone here?
     return torch.stack(all_configs, dim=1) # dim=1 to make walkers be the batch dim
 
-def unadjusted_langevin(trialfunc, num_walkers=2, num_steps=100, eta=0.01):
+def unadjusted_langevin(trialfunc, init_config, num_walkers=2, num_steps=100, eta=0.01):
     # seems hard to get this to converge
-    config = torch.zeros(num_walkers, 1, requires_grad=True)
+    config = init_config.clone(requires_grad=True)
     grad_out = torch.ones_like(config, requires_grad=False)
     all_configs = []
     for step in range(num_steps):
@@ -77,9 +84,9 @@ def unadjusted_langevin(trialfunc, num_walkers=2, num_steps=100, eta=0.01):
     return torch.stack(all_configs, dim=1)
 
 
-def mala(trialfunc, num_walkers=2, num_steps=100, eta=0.01):
+def mala(trialfunc, init_config, num_walkers=2, num_steps=100, eta=0.01):
     # this isn't right -- we need different MH filter for asymmetric proposal
-    config = torch.zeros(num_walkers, 1)
+    config = init_config
     grad_out = torch.ones_like(config, requires_grad=False)
     brownian_dist = Normal(torch.zeros_like(config, requires_grad=False),
                            torch.ones_like(config, requires_grad=False))

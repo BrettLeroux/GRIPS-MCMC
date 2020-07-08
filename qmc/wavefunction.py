@@ -5,6 +5,20 @@ from torch.distributions import Normal, Bernoulli
 
 LOGPI = np.log(np.pi)
 
+class ParticleBoxFunction(nn.Module):
+    def __init__(self, alpha):
+        super(ParticleBoxFunction, self).__init__()
+        self.alpha = nn.Parameter(alpha)
+
+    def forward(self, x):
+        #
+        prod_sin_alpha_pi_x = torch.sin(np.pi*self.alpha*x).prod(dim=-1)
+        abs_psi_squared = (np.sqrt(8.0)*prod_sin_alpha_pi_x)**2.0
+        return torch.log(abs_psi_squared)
+
+    def local_energy(self, x):
+        return ((self.alpha*np.pi)**2.0).sum(dim=-1)
+
 class HarmonicTrialFunction(nn.Module):
     def __init__(self, alpha):
         super(HarmonicTrialFunction, self).__init__()
