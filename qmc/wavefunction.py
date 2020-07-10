@@ -23,7 +23,6 @@ class HarmonicTrialFunction(nn.Module):
     def __init__(self, alpha):
         super(HarmonicTrialFunction, self).__init__()
         self.alpha = nn.Parameter(alpha)
-
     def forward(self, x):
         # outputs logprob
         # 2.0 * because it's |\Psi|^2
@@ -42,13 +41,24 @@ class HydrogenTrialWavefunction(nn.Module):
     def __init__(self, alpha):
         super(HydrogenTrialWavefunction, self).__init__()
         self.alpha = nn.Parameter(torch.tensor(alpha))
-
     def forward(self, x):
         # outputs logprob
         # 2.0 * because it's |\Psi|^2
         return 2.0 * (torch.log(self.alpha) + torch.log(x) - self.alpha * x)
-
     def local_energy(self, x):
         return -(1.0 / x) - (self.alpha / 2) * (self.alpha - (2.0 / x))
 
 
+class HeliumTrialWavefunction(nn.Module):
+    def __init__(self, alpha):
+        super(HeliumTrialWavefunction, self).__init__()
+        self.alpha = nn.Parameter(alpha.clone().detach())
+
+    def forward(self, x):
+        # outputs logprob
+        # 2.0 * because it's |\Psi|^2
+       
+        return 2.0*(3*torch.log((2-self.alpha.clone().detach()))+torch.log(torch.tensor(np.pi))-(2-self.alpha)*(x[0]+x[1]))
+    
+    def local_energy(self, x):
+        return -(2-self.alpha)**2-self.alpha*(1/x[0]+1/x[1])+1/(torch.sqrt(x[0]**2+x[1]**2+x[1]*x[0]*torch.cos(x[2]))) 
