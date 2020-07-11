@@ -26,10 +26,12 @@ class HarmonicTrialFunction(nn.Module):
     def forward(self, x):
         # outputs logprob
         # 2.0 * because it's |\Psi|^2
-        return 2.0 * (0.5 * torch.log(self.alpha) - 0.25 * LOGPI - 0.5 * x * x * self.alpha * self.alpha)
+        # squeeze last dim bc it's 1D and output here is a scalar logprob per point
+        return 2.0 * (0.5 * torch.log(self.alpha) - 0.25 * LOGPI - 0.5 * x * x * self.alpha * self.alpha).squeeze(dim=-1)
 
     def local_energy(self, x):
-        return self.alpha * self.alpha + (x * x) * (1.0 - self.alpha ** 4.0)
+        # squeeze last dim bc it's 1D and output here is a scalar energy per point
+        return (self.alpha * self.alpha + (x * x) * (1.0 - self.alpha ** 4.0)).squeeze(dim=-1)
 
 def harmonic_true_mean_energy(alpha):
     return ((alpha**2)/2) + (1.0/(2*(alpha**2)))

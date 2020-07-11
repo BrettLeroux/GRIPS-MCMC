@@ -17,10 +17,10 @@ def energy_minimize_step(trialfunc, samples, optimizer):
 
 
 
-def vmc_iterate(tf, num_iters=100):
+def vmc_iterate(tf, init_config, num_iters=100):
     opt = optim.SGD(tf.parameters(), lr=1e-2,momentum=0.9)
     for i in range(num_iters):
-        results=metropolis_symmetric(tf, normal_proposal, num_walkers=1000, num_steps=5000)
+        results=metropolis_symmetric(tf, init_config, normal_proposal, num_walkers=1000, num_steps=5000)
         energy_minimize_step(tf, results, opt)
         print(tf.alpha)
 
@@ -30,7 +30,8 @@ def harmonic_energy_alpha_values():
     for alpha_val in vals:
         print(alpha_val)
         tf = HarmonicTrialFunction(alpha_val)
-        samples = metropolis_symmetric(tf, normal_proposal, num_walkers=100, num_steps=20000)
+        init_config = torch.ones(100,1)
+        samples = metropolis_symmetric(tf, init_config, normal_proposal, num_walkers=100, num_steps=20000)
         means.append(torch.mean(tf.local_energy(samples)).item())
     return vals, means
 
@@ -38,8 +39,8 @@ def hydrogen_energy_alpha_values():
     vals = np.arange(0.2,1.5,0.1)
     means = []
     for alpha_val in vals:
-        print(alpha_val)
         tf = HydrogenTrialWavefunction(alpha_val)
+        init_val = torch.ones(100, 1)
         samples = metropolis_symmetric(tf, clip_normal_proposal, num_walkers=100, num_steps=20000, init_val=0.5)
         means.append(torch.mean(tf.local_energy(samples)).item())
     return vals, means
@@ -47,5 +48,6 @@ def hydrogen_energy_alpha_values():
 
 if __name__ == '__main__':
     tf = HarmonicTrialFunction(torch.tensor(1.2))
-    vmc_iterate(tf)
+    init_config = 0.5*torch.ones(1000,1)
+    vmc_iterate(tf, init_config)
 
