@@ -1,5 +1,9 @@
 from qmc.wavefunction import HarmonicTrialFunction, ParticleBoxFunction
 import torch
+import numpy as np
+from hypothesis import given
+from hypothesis.extra.numpy import arrays
+from hypothesis.strategies import floats
 
 # the following are tests for different trial wavefunctions.
 # they are meant to be run using the pytest testing framework.
@@ -71,4 +75,22 @@ def test_particlebox_logprob_dims():
 
 # particlebox local energy is a constant, so not testing its output dimensionality
 
-# TODO add Hypothesis code to check for NaN on random inputs in domain
+# TODO add more Hypothesis code to check for NaN on random inputs in domain
+
+
+@given(arrays(np.float, (1, 1), elements=floats(-10, 10)), floats(min_value=0, max_value=20))
+def test_harmonic_nan(configs, alpha):
+    f = HarmonicTrialFunction(torch.tensor(alpha))
+    inputs = torch.tensor(configs)
+    outputs = f(inputs)
+    assert not torch.isnan(outputs).any()
+    outputs = f.local_energy(inputs)
+    assert not torch.isnan(outputs).any()
+
+
+@given(arrays(np.float, (1, 3), elements=floats(0, 1)), floats(min_value=0, max_value=20))
+def test_particlebox_nan(configs, alpha):
+    f = ParticleBoxFunction(alpha*torch.ones(3))
+    inputs = torch.tensor(configs)
+    outputs = f(inputs)
+    assert not torch.isnan(outputs).any()
