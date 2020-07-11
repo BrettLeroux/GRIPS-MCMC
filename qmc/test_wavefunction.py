@@ -10,6 +10,7 @@ import torch
 # if you write a new trial wavefunction, copy versions of these tests
 # and modify them (configuration dim, valid input values). ensuring
 # all trial wavefunctions pass tests like this will allow for a consistent interface.
+# Any new test must be a function whose name starts with test_
 
 def test_harmonic_logprob_dims():
     config_dimension = 1
