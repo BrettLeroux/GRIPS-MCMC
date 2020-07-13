@@ -58,6 +58,8 @@ def metropolis_asymmetric(trialfunc, init_config, proposal, num_walkers=2,num_st
                                                  config, next_config)
             # acc shape should be (num_walkers, 1)
             accept_or_reject = Bernoulli(acc).sample() # accept is 1, reject is 0
+            print(next_fig.shape())
+            print(config.shape())
             config = accept_or_reject*next_config + (1.0 - accept_or_reject)*config
             all_configs.append(config.clone()) # can we skip clone here?
     return torch.stack(all_configs, dim=1) # dim=1 to make walkers be the batch dim
