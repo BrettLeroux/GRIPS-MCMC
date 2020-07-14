@@ -1,6 +1,19 @@
 import torch
+from torch import nn
 from torch.distributions import Normal, Bernoulli, MultivariateNormal
 import numpy as np
+
+class NormalProposal(nn.Module):
+
+    # this doesn't need to be a module, but other proposal
+    # distributions will have learned parameters so might as
+    # well start here
+    def __init__(self, sigma):
+        super(NormalProposal, self).__init__()
+        self.sigma = sigma
+
+    def forward(self, x):
+        return Normal(x, self.sigma).sample()
 
 def normal_proposal(old_point):
     # symmetric

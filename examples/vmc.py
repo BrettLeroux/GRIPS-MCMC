@@ -2,7 +2,7 @@ import torch
 from torch import optim
 import numpy as np
 
-from qmc.mcmc import metropolis_symmetric, normal_proposal, clip_normal_proposal
+from qmc.mcmc import metropolis_symmetric, normal_proposal, clip_normal_proposal, NormalProposal
 from qmc.wavefunction import HarmonicTrialFunction, HydrogenTrialWavefunction
 
 
@@ -19,8 +19,9 @@ def energy_minimize_step(trialfunc, samples, optimizer):
 
 def vmc_iterate(tf, init_config, num_iters=100):
     opt = optim.SGD(tf.parameters(), lr=1e-2,momentum=0.9)
+    propdist = NormalProposal(0.3)
     for i in range(num_iters):
-        results=metropolis_symmetric(tf, init_config, normal_proposal, num_walkers=1000, num_steps=5000)
+        results=metropolis_symmetric(tf, init_config, propdist, num_walkers=1000, num_steps=5000)
         energy_minimize_step(tf, results, opt)
         print(tf.alpha)
 
