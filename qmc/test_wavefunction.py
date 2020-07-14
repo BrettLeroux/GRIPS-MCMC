@@ -23,15 +23,18 @@ def test_harmonic_logprob_dims():
     # for multiple walkers, output should one scalar per walker
     input = 0.5*torch.ones(10, config_dimension)
     output = f(input)
+    assert len(output.shape) == 1
     assert output.shape[0] == 10
 
     input = 0.5*torch.ones(1, config_dimension)
     output = f(input)
+    assert len(output.shape) == 1
     assert output.shape[0] == 1
 
     # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
     input = 0.5*torch.ones(5, 10, config_dimension)
     output = f(input)
+    assert len(output.shape) == 2
     assert output.shape[0] == 5
     assert output.shape[1] == 10
 
@@ -42,15 +45,18 @@ def test_harmonic_local_energy_dims():
     # for multiple walkers, output should one scalar per walker
     input = 0.5*torch.ones(10, config_dimension)
     output = f.local_energy(input)
+    assert len(output.shape) == 1
     assert output.shape[0] == 10
 
     input = 0.5*torch.ones(1, config_dimension)
     output = f.local_energy(input)
+    assert len(output.shape) == 1
     assert output.shape[0] == 1
 
     # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
     input = 0.5*torch.ones(5, 10, config_dimension)
     output = f.local_energy(input)
+    assert len(output.shape) == 2
     assert output.shape[0] == 5
     assert output.shape[1] == 10
 
@@ -61,15 +67,18 @@ def test_particlebox_logprob_dims():
     # for multiple walkers, output should one scalar per walker
     input = 0.5*torch.ones(10, config_dimension)
     output = f(input)
+    assert len(output.shape) == 1
     assert output.shape[0] == 10
 
     input = 0.5*torch.ones(1, config_dimension)
     output = f(input)
+    assert len(output.shape) == 1
     assert output.shape[0] == 1
 
     # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
     input = 0.5*torch.ones(5, 10, config_dimension)
     output = f(input)
+    assert len(output.shape) == 2
     assert output.shape[0] == 5
     assert output.shape[1] == 10
 
