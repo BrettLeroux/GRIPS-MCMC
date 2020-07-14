@@ -1,8 +1,8 @@
 # %%
 import torch
 import matplotlib.pyplot as plt
-from mcmc import metropolis_symmetric, clip_mvnormal_proposal
-from wavefunctionh import HeliumTrialWavefunction
+from qmc.mcmc import metropolis_symmetric, clip_mvnormal_proposal
+from qmc.wavefunctionh import HeliumTrialWavefunction
 
 # %%
 d=3
