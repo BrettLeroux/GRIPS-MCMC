@@ -2,7 +2,7 @@ import torch
 from torch import optim
 import numpy as np
 
-from qmc.mcmc import metropolis_symmetric, normal_proposal, clip_normal_proposal, NormalProposal
+from qmc.mcmc import metropolis_symmetric, normal_proposal, clip_normal_proposal, NormalProposal, ClipNormalProposal
 from qmc.wavefunction import HarmonicTrialFunction, HydrogenTrialWavefunction
 
 
@@ -30,8 +30,8 @@ def harmonic_energy_alpha_values():
     means = []
     for alpha_val in vals:
         print(alpha_val)
-        tf = HarmonicTrialFunction(alpha_val)
-        init_config = torch.ones(100,1)
+        tf = HarmonicTrialFunction(torch.tensor(alpha_val))
+        init_config = 0.5*torch.ones(100,1)
         samples = metropolis_symmetric(tf, init_config, normal_proposal, num_walkers=100, num_steps=20000)
         means.append(torch.mean(tf.local_energy(samples)).item())
     return vals, means
