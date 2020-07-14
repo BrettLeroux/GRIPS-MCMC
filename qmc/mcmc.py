@@ -15,6 +15,19 @@ class NormalProposal(nn.Module):
     def forward(self, x):
         return Normal(x, self.sigma).sample()
 
+class ClipNormalProposal(nn.Module):
+    def __init__(self, sigma, min_val=-np.inf, max_val = np.inf):
+        super(ClipNormalProposal, self).__init__()
+        self.sigma = sigma
+        self.min_val = min_val
+        self.max_val = max_val
+
+    def forward(self, x):
+        samp = MultivariateNormal(x, self.sigma*torch.eye(x.shape[-1])).sample()
+        samp.clamp_min_(self.min_val)
+        samp.clamp_max_(self.max_val)
+        return samp
+
 def normal_proposal(old_point):
     # symmetric
     return Normal(old_point, 0.3*torch.ones_like(old_point)).sample()

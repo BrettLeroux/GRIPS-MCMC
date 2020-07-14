@@ -43,7 +43,7 @@ def harmonic_true_variance(alpha):
 class HydrogenTrialWavefunction(nn.Module):
     def __init__(self, alpha):
         super(HydrogenTrialWavefunction, self).__init__()
-        self.alpha = nn.Parameter(torch.tensor(alpha))
+        self.alpha = nn.Parameter(alpha)
 
     def forward(self, x):
         # outputs logprob

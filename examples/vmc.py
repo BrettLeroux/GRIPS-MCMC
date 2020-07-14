@@ -39,10 +39,12 @@ def harmonic_energy_alpha_values():
 def hydrogen_energy_alpha_values():
     vals = np.arange(0.2,1.5,0.1)
     means = []
+    propdist = ClipNormalProposal(0.3, min_val=0.0)
     for alpha_val in vals:
-        tf = HydrogenTrialWavefunction(alpha_val)
-        init_val = torch.ones(100, 1)
-        samples = metropolis_symmetric(tf, clip_normal_proposal, num_walkers=100, num_steps=20000, init_val=0.5)
+        print(alpha_val)
+        tf = HydrogenTrialWavefunction(torch.tensor(alpha_val))
+        init_config = 0.5*torch.ones(100, 1)
+        samples = metropolis_symmetric(tf, init_config, propdist, num_walkers=100, num_steps=20000)
         means.append(torch.mean(tf.local_energy(samples)).item())
     return vals, means
 
