@@ -22,6 +22,5 @@ def test_autograd_trace_hess_quadratic(x):
 
 
 def test_autograd_trace_cubic():
-    x = torch.ones(3)
-    assert autograd_trace_hessian(torch.tensor(x), func_cubic) == 180.0
+    assert autograd_trace_hessian(torch.ones(3), func_cubic) == 180.0
 
