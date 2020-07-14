@@ -1,6 +1,32 @@
 import torch
+from torch import nn
 from torch.distributions import Normal, Bernoulli, MultivariateNormal
 import numpy as np
+
+class NormalProposal(nn.Module):
+
+    # this doesn't need to be a module, but other proposal
+    # distributions will have learned parameters so might as
+    # well start here
+    def __init__(self, sigma):
+        super(NormalProposal, self).__init__()
+        self.sigma = sigma
+
+    def forward(self, x):
+        return Normal(x, self.sigma).sample()
+
+class ClipNormalProposal(nn.Module):
+    def __init__(self, sigma, min_val=-np.inf, max_val = np.inf):
+        super(ClipNormalProposal, self).__init__()
+        self.sigma = sigma
+        self.min_val = min_val
+        self.max_val = max_val
+
+    def forward(self, x):
+        samp = MultivariateNormal(x, self.sigma*torch.eye(x.shape[-1])).sample()
+        samp.clamp_min_(self.min_val)
+        samp.clamp_max_(self.max_val)
+        return samp
 
 def normal_proposal(old_point):
     # symmetric
