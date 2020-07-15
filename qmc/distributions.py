@@ -11,13 +11,15 @@ class RandomHybridRosenbrock(nn.Module):
         self.a = nn.Parameter(torch.rand(1))
         self.b = nn.Parameter(torch.rand(n2, n1 - 1))
         self.mu = nn.Parameter(torch.rand(1))
+        self.n1 = n1
+        self.n2 = n2
 
     def forward(self, x):
         # output logprob
-        y = x[np.r_[1:(n1 - 1) * n2 + 1]].reshape((n2, n1 - 1))
+        y = x[np.r_[1:(self.n1 - 1) * self.n2 + 1]].reshape((self.n2, self.n1 - 1))
         return (-self.a) * (x[0] - self.mu) ** 2 - sum(
-            self.b[j, i] * (y[j, i] - y[j, i - 1] ** 2) ** 2 for i in range(n1 - 2) for j in range(n2 - 1))
+            self.b[j, i] * (y[j, i] - y[j, i - 1] ** 2) ** 2 for i in range(self.n1 - 2) for j in range(self.n2 - 1))
 
     # gives the normalization constant
     def normalization(self):
-        return (torch.sqrt(self.a) * torch.prod(torch.sqrt(self.b))) / np.power(np.pi, ((n1 - 1) * n2 + 1) / 2)
+        return (torch.sqrt(self.a) * torch.prod(torch.sqrt(self.b))) / np.power(np.pi, ((self.n1 - 1) * self.n2 + 1) / 2)
