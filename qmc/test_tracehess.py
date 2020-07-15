@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from hypothesis import given
-from hypothesis.extra.numpy import arrays
+from hypothesis.extra.numpy import arrays, array_shapes
 from hypothesis.strategies import floats
 
 from qmc.tracehess import autograd_trace_hessian, gradient_f, hessian_f
@@ -42,10 +42,10 @@ def test_numerical_hessian_f_nonan(x):
 def test_autograd_trace_hess_quadratic(x):
     assert autograd_trace_hessian(func_quadratic, torch.tensor(x)) == 60.0
 
-@given(arrays(np.float32, (2,3,1), elements=floats(-10, 10, width=32)))
+@given(arrays(np.float32, array_shapes(min_dims=2, max_dims=3, min_side=1, max_side=10), elements=floats(-10, 10, width=32)))
 def test_autograd_trace_hess_exp(x):
     xtens = torch.tensor(x)
-    out = func_exp(xtens)
+    out = func_exp(xtens) # deriv of exp is exp
 
     assert torch.isclose(autograd_trace_hessian(func_exp, xtens), out).all()
 
