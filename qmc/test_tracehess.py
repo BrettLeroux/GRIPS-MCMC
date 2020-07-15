@@ -13,17 +13,20 @@ def the_func(y):
 
 
 def func_quadratic(x):
-    return 10.0*torch.sum(x*x, dim=-1)
+    return 10.0 * torch.sum(x * x, dim=-1)
 
 
 def func_cubic(x):
-    return 10.0*torch.sum(x*x*x, dim=-1)
+    return 10.0 * torch.sum(x * x * x, dim=-1)
+
 
 def func_sin(x):
     return torch.sin(x).sum(dim=-1)
 
+
 def func_exp(x):
     return torch.exp(x).sum(dim=-1)
+
 
 @given(arrays(np.float32, (2, 1), elements=floats(-10, 10, width=32)))
 def test_numerical_gradient_f_nonan(x):
@@ -38,19 +41,27 @@ def test_numerical_hessian_f_nonan(x):
 
 
 # random arrays
-@given(arrays(np.float32, (1,3), elements=floats(-10, 10, width=32)))
+@given(arrays(np.float32, (1, 3), elements=floats(-10, 10, width=32)))
 def test_autograd_trace_hess_quadratic(x):
     assert autograd_trace_hessian(func_quadratic, torch.tensor(x)) == 60.0
 
-@given(arrays(np.float32, array_shapes(min_dims=2, max_dims=3, min_side=1, max_side=10), elements=floats(-10, 10, width=32)))
+
+@given(
+    arrays(
+        np.float32,
+        array_shapes(min_dims=2, max_dims=3, min_side=1, max_side=10),
+        elements=floats(-10, 10, width=32),
+    )
+)
 def test_autograd_trace_hess_exp(x):
     xtens = torch.tensor(x)
-    out = func_exp(xtens) # deriv of exp is exp
+    out = func_exp(xtens)  # deriv of exp is exp
 
     assert torch.isclose(autograd_trace_hessian(func_exp, xtens), out).all()
 
+
 def test_autograd_trace_hess_batchdims():
-    x1 = torch.ones(1,3)
+    x1 = torch.ones(1, 3)
     lap = autograd_trace_hessian(func_quadratic, x1)
     assert lap.shape == torch.Size([1])
 

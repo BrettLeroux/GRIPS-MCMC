@@ -36,6 +36,7 @@ def hessian_f(x, the_func):
         x[i] = xx0
     return hessian
 
+
 def autograd_trace_hessian(the_func, x):
 
     # uses the following trick:
@@ -44,14 +45,20 @@ def autograd_trace_hessian(the_func, x):
     # will give the trace of the Hessian evaluated
     # at x, i.e. trace(\nabla_x^2 f(x))
 
-    assert len(x.shape) >= 2, "x must have some batch dims. if you want to work on a single configuration, try x.unsqueeze(0) to make it be shape [1,d]"
+    assert (
+        len(x.shape) >= 2
+    ), "x must have some batch dims. if you want to work on a single configuration, try x.unsqueeze(0) to make it be shape [1,d]"
 
     all_ones = torch.ones_like(x)
-    f_plus_z = lambda z: the_func(x + z*all_ones)
-    batch_zero = torch.zeros( list(x.shape[:-1]) + [1], requires_grad=True)
+    f_plus_z = lambda z: the_func(x + z * all_ones)
+    batch_zero = torch.zeros(list(x.shape[:-1]) + [1], requires_grad=True)
     fout = f_plus_z(batch_zero)
-    gradient, = torch.autograd.grad(fout, batch_zero, grad_outputs=torch.ones_like(fout), create_graph=True)
-    second_deriv, = torch.autograd.grad(gradient, batch_zero, grad_outputs=torch.ones_like(gradient))
+    (gradient,) = torch.autograd.grad(
+        fout, batch_zero, grad_outputs=torch.ones_like(fout), create_graph=True
+    )
+    (second_deriv,) = torch.autograd.grad(
+        gradient, batch_zero, grad_outputs=torch.ones_like(gradient)
+    )
 
     # should return a batched array of scalars, so remove last dim which should be of size 1
     return second_deriv.squeeze(dim=-1)
