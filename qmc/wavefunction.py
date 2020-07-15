@@ -43,14 +43,14 @@ def harmonic_true_variance(alpha):
 class HydrogenTrialWavefunction(nn.Module):
     def __init__(self, alpha):
         super(HydrogenTrialWavefunction, self).__init__()
-        self.alpha = nn.Parameter(torch.tensor(alpha))
+        self.alpha = nn.Parameter(alpha)
 
     def forward(self, x):
         # outputs logprob
         # 2.0 * because it's |\Psi|^2
-        return 2.0 * (torch.log(self.alpha) + torch.log(x) - self.alpha * x)
+        return 2.0 * (torch.log(self.alpha) + torch.log(x) - self.alpha * x).squeeze(dim=-1)
 
     def local_energy(self, x):
-        return -(1.0 / x) - (self.alpha / 2) * (self.alpha - (2.0 / x))
+        return (-(1.0 / x) - (self.alpha / 2) * (self.alpha - (2.0 / x))).squeeze(dim=-1)
 
 
