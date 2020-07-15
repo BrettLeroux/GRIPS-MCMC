@@ -12,7 +12,7 @@ def gradient_f(x, f):
     N = x.shape[0]
     gradient = []
     for i in range(N):
-        eps = abs(x[i]) * np.finfo(np.float32).eps
+        eps = np.finfo(np.float32).eps
         xx0 = 1.0 * x[i]
         f0 = f(x)
         x[i] = x[i] + eps
@@ -27,7 +27,7 @@ def hessian_f(x, the_func):
     N = x.shape[0]
     hessian = np.zeros((N, N))
     gd_0 = gradient_f(x, the_func)
-    eps = np.linalg.norm(gd_0) * np.finfo(np.float32).eps
+    eps = np.finfo(np.float32).eps
     for i in range(N):
         xx0 = 1.0 * x[i]
         x[i] = xx0 + eps
