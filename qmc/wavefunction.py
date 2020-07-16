@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from autograd import autograd_trace_hessian
+from qmc.autograd import autograd_trace_hessian
 from torch import nn, optim
 from torch.distributions import Normal, Bernoulli
 LOGPI = np.log(np.pi)
@@ -30,9 +30,10 @@ class HarmonicTrialFunction(nn.Module):
         # squeeze last dim bc it's 1D and output here is a scalar logprob per point
         return 2.0 * (0.5 * torch.log(self.alpha) - 0.25 * LOGPI - 0.5 * x * x * self.alpha * self.alpha).squeeze(dim=-1)
     def harmoni_ansatz_sup(self, x):
-        return torch.sqrt(self.alpha)*torch.exp(-0.5*self.alpha*x**2)
+        # output dimensions should be either num_walkers x num_samples or just num_samples
+        return torch.sqrt(self.alpha)*torch.exp(-0.5*self.alpha*x**2).squeeze(dim=-1)
     def local_energy(self, x):
-        return ((x**2)-(autograd_trace_hessian(self.harmoni_ansatz_sup,x)/(self.harmoni_ansatz_sup(x))))
+        return ((x**2).squeeze(dim=-1)-(autograd_trace_hessian(self.harmoni_ansatz_sup,x)/(self.harmoni_ansatz_sup(x))))
 
 
     #def local_energy(self, x):
