@@ -1,15 +1,15 @@
 # %%
 import torch
 import matplotlib.pyplot as plt
-from mcmc import metropolis_symmetric, clip_mvnormal_proposal
-from wavefunction import HeliumTrialWavefunction
+from qmc.mcmc import metropolis_symmetric, clip_mvnormal_proposal
+from qmc.wavefunction import HeliumTrialWavefunction
 
 # %%
 d=3
 tf = HeliumTrialWavefunction(torch.ones(1))
 
 # 
-n_walkers=1
+n_walkers=10
 init_config = torch.rand(n_walkers,3)
 results = metropolis_symmetric(tf, init_config, clip_mvnormal_proposal, num_walkers=n_walkers, num_steps=10000)
 

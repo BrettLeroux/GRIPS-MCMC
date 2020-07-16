@@ -36,33 +36,33 @@ class HarmonicTrialFunction(nn.Module):
         return ((x**2).squeeze(dim=-1)-(autograd_trace_hessian(self.harmoni_ansatz_sup,x)/(self.harmoni_ansatz_sup(x))))
 
 
-    #def local_energy(self, x):
-        # squeeze last dim bc it's 1D and output here is a scalar energy per point
-        #return (self.alpha * self.alpha + (x * x) * (1.0 - self.alpha ** 4.0)).squeeze(dim=-1)
+    # def local_energy(self, x):
+    #     squeeze last dim bc it's 1D and output here is a scalar energy per point
+        # return (self.alpha * self.alpha + (x * x) * (1.0 - self.alpha ** 4.0)).squeeze(dim=-1)
 
 def harmonic_true_mean_energy(alpha):
     return ((alpha**2)/2) + (1.0/(2*(alpha**2)))
+
 def harmonic_true_variance(alpha):
     return ((alpha**4 - 1)**2)/(2*alpha**4)
-def hydro_ansatz_sup(x):
-    return self.alpha*x*torch.exp(-self.alpha*x)
+
 
 class HydrogenTrialWavefunction(nn.Module):
     def __init__(self, alpha):
         super(HydrogenTrialWavefunction, self).__init__()
         self.alpha = nn.Parameter(alpha)
     
-
     def forward(self, x):
          #outputs logprob
          #2.0 * because it's |\Psi|^2
         return 2.0 * (torch.log(self.alpha) + torch.log(x) - self.alpha * x).squeeze(dim=-1)
+
     def hydro_ansatz_sup(self, x):
+        x = x.squeeze(dim=-1)
         return self.alpha*x*torch.exp(-self.alpha*x)
 
-
     def local_energy(self, x):
-        return (-(1.0/x)-(0.5*autograd_trace_hessian(self.hydro_ansatz_sup,x)/(self.hydro_ansatz_sup(x))))
+        return (-(1.0/x.squeeze(dim=-1))-(0.5*autograd_trace_hessian(self.hydro_ansatz_sup,x)/(self.hydro_ansatz_sup(x))))
     #def local_energy(self, x):
       #  return (-(1.0 / x) - (self.alpha / 2) * (self.alpha - (2.0 / x))).squeeze(dim=-1)
 
