@@ -1,7 +1,7 @@
   
 import torch
 import numpy as np
-from qmc.autograd import autograd_trace_hessian
+from qmc.tracehess import autograd_trace_hessian
 from torch import nn, optim
 from torch.distributions import Normal, Bernoulli
 LOGPI = np.log(np.pi)

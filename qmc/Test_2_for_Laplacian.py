@@ -4,7 +4,7 @@ from hypothesis import given
 from hypothesis.extra.numpy import arrays, array_shapes
 from hypothesis.strategies import floats
 
-from qmc.autograd import autograd_trace_hessian, gradient_f, hessian_f
+from qmc.tracehess import autograd_trace_hessian, gradient_f, hessian_f
 
 # Gradient Function
 

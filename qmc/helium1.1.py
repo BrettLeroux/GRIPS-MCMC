@@ -9,7 +9,7 @@ d=3
 tf = HeliumTrialWavefunction(torch.ones(1))
 
 # 
-n_walkers=10
+n_walkers=3
 init_config = torch.rand(n_walkers,3)
 results = metropolis_symmetric(tf, init_config, clip_mvnormal_proposal, num_walkers=n_walkers, num_steps=10000)
 
