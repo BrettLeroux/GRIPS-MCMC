@@ -15,6 +15,8 @@ def the_func(y):
 def func_quadratic(x):
     return 10.0 * torch.sum(x * x, dim=-1)
 
+def func_offdiag(x):
+    return x[..., 0]*x[..., 1]
 
 def func_cubic(x):
     return 10.0 * torch.sum(x * x * x, dim=-1)
@@ -27,6 +29,10 @@ def func_sin(x):
 def func_exp(x):
     return torch.exp(x).sum(dim=-1)
 
+@given(arrays(np.float32, (1, 2), elements=floats(-10, 10, width=32)))
+def test_offdiag_laplacian(x):
+    x = torch.tensor(x)
+    assert autograd_trace_hessian(func_offdiag, x)[0] == 0.0
 
 @given(arrays(np.float32, (2, 1), elements=floats(-10, 10, width=32)))
 def test_numerical_gradient_f_nonan(x):
