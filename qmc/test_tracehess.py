@@ -6,6 +6,13 @@ from hypothesis.strategies import floats
 
 from qmc.tracehess import autograd_trace_hessian, gradient_f, hessian_f
 
+
+def autograd_trace_hessian_full(f, x):
+    # only works on scalar functions, here for testing purposes
+    # assume we have x of shape [1, d]
+    full_hess = torch.autograd.functional.hessian(f, x[0,:])
+    return full_hess.diag().sum()
+
 # Gradient Function
 def the_func(y):
     # this is for numerical hessian only
@@ -29,10 +36,18 @@ def func_sin(x):
 def func_exp(x):
     return torch.exp(x).sum(dim=-1)
 
+
+@given(arrays(np.float32, (1, 2), elements=floats(-10, 10, width=32)))
+def test_full_hess_equivalent(x):
+    x = torch.tensor(x)
+    x2 = x.clone()
+    assert np.isclose(autograd_trace_hessian(func_offdiag, x)[0].item(), autograd_trace_hessian_full(func_offdiag, x2).item())
+
+
 @given(arrays(np.float32, (1, 2), elements=floats(-10, 10, width=32)))
 def test_offdiag_laplacian(x):
     x = torch.tensor(x)
-    assert autograd_trace_hessian(func_offdiag, x)[0] == 0.0
+    assert np.isclose(autograd_trace_hessian(func_offdiag, x)[0].item(), 0.0)
 
 @given(arrays(np.float32, (2, 1), elements=floats(-10, 10, width=32)))
 def test_numerical_gradient_f_nonan(x):

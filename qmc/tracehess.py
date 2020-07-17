@@ -39,12 +39,6 @@ def hessian_f(x, the_func):
 
 def autograd_trace_hessian(the_func, x):
 
-    # uses the following trick:
-    # d^2 f/dz^2 f(x + z*1), where 1 denotes a vector of ones
-    # and z is a single scalar, when evaluated at z=0,
-    # will give the trace of the Hessian evaluated
-    # at x, i.e. trace(\nabla_x^2 f(x))
-
     assert (
         len(x.shape) >= 2
     ), "x must have some batch dims. if you want to work on a single configuration, try x.unsqueeze(0) to make it be shape [1,d]"
