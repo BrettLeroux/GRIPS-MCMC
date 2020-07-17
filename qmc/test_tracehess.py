@@ -81,5 +81,9 @@ def test_autograd_trace_hess_sin(x):
     assert torch.isclose(lap, -torch.sin(input))
 
 
+def test_runs_autograd_trace_cubic():
+    autograd_trace_hessian(func_cubic, torch.ones(1, 3))
+
+
 def test_autograd_trace_cubic():
     assert autograd_trace_hessian(func_cubic, torch.ones(1, 3)) == 180.0
