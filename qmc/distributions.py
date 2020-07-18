@@ -49,3 +49,19 @@ class RandomHybridRosenbrock(nn.Module):
     # gives the normalization constant
     def normalization(self):
         return (torch.sqrt(self.a) * torch.prod(torch.sqrt(self.b))) / np.power(np.pi, ((self.n1 - 1) * self.n2 + 1) / 2)
+
+
+class MixtureOfGaussians(nn.Module):
+
+    def __init__(self, mean_list, covmat_list):
+        super(MixtureOfGaussians, self).__init__()
+
+        self.gaussians_list = [torch.distributions.MultivariateNormal(m, c) for m, c in zip(mean_list, covmat_list)]
+
+    def forward(self, x):
+        result = 0.0
+        for gaussian in self.gaussians_list:
+            result = result + gaussian.log_prob(x)
+        return result
+
+
