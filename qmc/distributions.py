@@ -48,7 +48,7 @@ class Rosenbrock(nn.Module):
             xx = x[:, :, :, 1:]
             xxx = x[:, :, :, 0:-1]
             result = - (1/20) * (y -1)**2 
-            - 5 * torch.sum(torch.sum((x - xx**2)**2, -1), -1)
+            - 5 * torch.sum(torch.sum((xx - xxx**2)**2, -1), -1)
             
         else:
             x = x if dim1 else x.unsqueeze(0)
