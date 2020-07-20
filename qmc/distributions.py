@@ -59,15 +59,6 @@ class Rosenbrock(nn.Module):
             result = - (1/20) * (y -1)**2 - 5 * torch.sum(torch.sum((xx - xxx**2)**2,-1), -1)
         return result if dim1 else result.squeeze(0)
 
-
-
-
-
-
-
-
-
-
 class MixtureOfGaussians(nn.Module):
 
     def __init__(self, mean_list, covmat_list):
