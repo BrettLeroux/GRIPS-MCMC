@@ -1,4 +1,4 @@
-from qmc.distributions import RandomHybridRosenbrock, MixtureOfGaussians
+from qmc.distributions import Rosenbrock, MixtureOfGaussians
 from qmc.distributions import dim2Rosenbrock
 import torch
 import numpy as np
@@ -40,12 +40,9 @@ def test_dim2rosenbrock_logprob_dims():
 
 
 
-
-
-
 def test_rosenbrock_logprob_dims():
-    config_dimension = 1
-    f = RandomHybridRosenbrock(2, 1)
+    config_dimension = 5
+    f = Rosenbrock(3, 2)
 
     input = 0.5*torch.ones(10, config_dimension)
     output = f(input)
