@@ -58,6 +58,16 @@ class Rosenbrock(nn.Module):
             xxx = x[:, :, 0:-1]
             result = - (1/20) * (y -1)**2 - 5 * torch.sum(torch.sum((xx - xxx**2)**2,-1), -1)
         return result if dim1 else result.squeeze(0)
+      
+      
+      
+    # gives the normalization constant
+    def normalization(self):
+        return ((1/20)**(1/2) * 5**((n2 * (n1-1)) / 2) ) / (np.pi)**((n2 * (n1 - 1) +1)/2)
+      
+      
+      
+  
 
 class MixtureOfGaussians(nn.Module):
 
