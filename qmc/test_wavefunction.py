@@ -192,3 +192,14 @@ def test_particlebox_nan(configs, alpha):
     inputs = torch.tensor(configs)
     outputs = f(inputs)
     assert not torch.isnan(outputs).any()
+
+@given(arrays(np.float32, (4, 2, 1), elements=floats(0.10999999940395355, 10, width=32)))
+def test_hydrogen_ansatz_energy(x):
+    x = torch.tensor(x)
+    #
+    func = HydrogenTrialWavefunction(torch.tensor(1.0))
+
+    local_energy = func.local_energy(x)
+
+    assert torch.isclose(local_energy, -0.5*torch.ones_like(local_energy)).all()
+

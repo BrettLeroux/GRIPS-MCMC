@@ -5,6 +5,7 @@ from hypothesis.extra.numpy import arrays, array_shapes
 from hypothesis.strategies import floats
 
 from qmc.tracehess import autograd_trace_hessian, gradient_f, hessian_f
+from qmc.wavefunction import HydrogenTrialWavefunction
 
 
 def autograd_trace_hessian_full(f, x):
@@ -36,6 +37,18 @@ def func_sin(x):
 def func_exp(x):
     return torch.exp(x).sum(dim=-1)
 
+
+@given(arrays(np.float32, (4, 2, 1), elements=floats(0.0, 10, width=32, exclude_min=True)))
+def test_hydrogen_ansatz_autograd(x):
+    x = torch.tensor(x)
+    #
+    func = HydrogenTrialWavefunction(torch.tensor(1.0))
+    true_lap = (func.alpha**2 * torch.exp(-func.alpha * x)*(-2.0 + func.alpha * x)).squeeze(dim=-1)
+    #
+    auto_lap = autograd_trace_hessian(func.hydro_ansatz_sup, x)
+
+    assert true_lap.shape == auto_lap.shape
+    assert torch.isclose(true_lap, auto_lap).all()
 
 @given(arrays(np.float32, (1, 2), elements=floats(-10, 10, width=32)))
 def test_full_hess_equivalent(x):
