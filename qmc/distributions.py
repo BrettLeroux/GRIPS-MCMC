@@ -63,7 +63,7 @@ class Rosenbrock(nn.Module):
       
     # gives the normalization constant
     def normalization(self):
-        return ((1/20)**(1/2) * 5**((n2 * (n1-1)) / 2) ) / (np.pi)**((n2 * (n1 - 1) +1)/2)
+        return ((1/20)**(1/2) * 5**((self.n2 * (self.n1-1)) / 2) ) / (np.pi)**((self.n2 * (self.n1 - 1) +1)/2)
       
       
       
