@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.distributions import Normal, Bernoulli, MultivariateNormal
 import numpy as np
-
+sigma = 1
 class NormalProposal(nn.Module):
 
     # this doesn't need to be a module, but other proposal
@@ -30,7 +30,7 @@ class ClipNormalProposal(nn.Module):
 
 def normal_proposal(old_point):
     # symmetric
-    return Normal(old_point, 0.3*torch.ones_like(old_point)).sample()
+    return Normal(old_point, sigma*torch.ones_like(old_point)).sample()
 
 def clip_mvnormal_proposal(old_point):
     # batches of old points, possibly with weird shapes
@@ -55,7 +55,7 @@ def asymmetric_mh_acceptance_ratio(logprob, new_old_logprob, old_new_logprob, ol
                       - new_old_logprob)
     return torch.exp(logacc)
 
-def metropolis_symmetric(trialfunc, init_config, proposal, num_walkers=2,num_steps=100):
+def metropolis_symmetric(trialfunc, init_config,proposal, num_walkers=2,num_steps=100):
     # with more walkers
     # design choice: walkers are always the batch dim
     config = init_config

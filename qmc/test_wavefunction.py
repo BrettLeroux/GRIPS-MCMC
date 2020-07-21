@@ -1,4 +1,4 @@
-from qmc.wavefunction import HarmonicTrialFunction, ParticleBoxFunction, HydrogenTrialWavefunction
+from qmc.wavefunction import HarmonicTrialFunction, ParticleBoxFunction
 import torch
 import numpy as np
 from hypothesis import given
@@ -16,69 +16,23 @@ from hypothesis.strategies import floats
 # all trial wavefunctions pass tests like this will allow for a consistent interface.
 # Any new test must be a function whose name starts with test_
 
-def test_hydrogen_logprob_dims():
-    config_dimension = 1
-    f = HydrogenTrialWavefunction(torch.tensor(1.0))
-
-    # for multiple walkers, output should one scalar per walker
-    input = 0.5*torch.ones(10, config_dimension)
-    output = f(input)
-    assert len(output.shape) == 1
-    assert output.shape[0] == 10
-
-    input = 0.5*torch.ones(1, config_dimension)
-    output = f(input)
-    assert len(output.shape) == 1
-    assert output.shape[0] == 1
-
-    # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
-    input = 0.5*torch.ones(5, 10, config_dimension)
-    output = f(input)
-    assert len(output.shape) == 2
-    assert output.shape[0] == 5
-    assert output.shape[1] == 10
-
-def test_hydrogen_local_energy_dims():
-    config_dimension = 1
-    f = HydrogenTrialWavefunction(torch.tensor(1.0))
-
-    # for multiple walkers, output should one scalar per walker
-    input = 0.5*torch.ones(10, config_dimension)
-    output = f.local_energy(input)
-    assert len(output.shape) == 1
-    assert output.shape[0] == 10
-
-    input = 0.5*torch.ones(1, config_dimension)
-    output = f.local_energy(input)
-    assert len(output.shape) == 1
-    assert output.shape[0] == 1
-
-    # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
-    input = 0.5*torch.ones(5, 10, config_dimension)
-    output = f.local_energy(input)
-    assert len(output.shape) == 2
-    assert output.shape[0] == 5
-    assert output.shape[1] == 10
-
 def test_harmonic_logprob_dims():
     config_dimension = 1
+
     f = HarmonicTrialFunction(torch.tensor(1.0))
 
     # for multiple walkers, output should one scalar per walker
     input = 0.5*torch.ones(10, config_dimension)
     output = f(input)
-    assert len(output.shape) == 1
     assert output.shape[0] == 10
 
     input = 0.5*torch.ones(1, config_dimension)
     output = f(input)
-    assert len(output.shape) == 1
     assert output.shape[0] == 1
 
     # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
     input = 0.5*torch.ones(5, 10, config_dimension)
     output = f(input)
-    assert len(output.shape) == 2
     assert output.shape[0] == 5
     assert output.shape[1] == 10
 
@@ -89,18 +43,15 @@ def test_harmonic_local_energy_dims():
     # for multiple walkers, output should one scalar per walker
     input = 0.5*torch.ones(10, config_dimension)
     output = f.local_energy(input)
-    assert len(output.shape) == 1
     assert output.shape[0] == 10
 
     input = 0.5*torch.ones(1, config_dimension)
     output = f.local_energy(input)
-    assert len(output.shape) == 1
     assert output.shape[0] == 1
 
     # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
     input = 0.5*torch.ones(5, 10, config_dimension)
     output = f.local_energy(input)
-    assert len(output.shape) == 2
     assert output.shape[0] == 5
     assert output.shape[1] == 10
 
@@ -111,18 +62,15 @@ def test_particlebox_logprob_dims():
     # for multiple walkers, output should one scalar per walker
     input = 0.5*torch.ones(10, config_dimension)
     output = f(input)
-    assert len(output.shape) == 1
     assert output.shape[0] == 10
 
     input = 0.5*torch.ones(1, config_dimension)
     output = f(input)
-    assert len(output.shape) == 1
     assert output.shape[0] == 1
 
     # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
     input = 0.5*torch.ones(5, 10, config_dimension)
     output = f(input)
-    assert len(output.shape) == 2
     assert output.shape[0] == 5
     assert output.shape[1] == 10
 

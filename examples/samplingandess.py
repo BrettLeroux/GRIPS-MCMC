@@ -1,6 +1,8 @@
 import torch
 import matplotlib.pyplot as plt
-from qmc.mcmc import metropolis_symmetric, clip_mvnormal_proposal, normal_proposal
+import numpy
+from torch.distributions import Normal, Bernoulli, MultivariateNormal
+from qmc.mcmc import metropolis_symmetric, clip_mvnormal_proposal, NormalProposal
 from qmc.wavefunction import HarmonicTrialFunction
 import arviz as az
 
@@ -9,9 +11,49 @@ import arviz as az
 # Infact, we will just the harmonic oscillator ansatz.
 #We also compute the effective sample size using az.ess() from arviz package. 
 
-tf= HarmonicTrialFunction(torch.ones(1))
-n_walkers = 2
-init_config = torch.ones(n_walkers, 1)
-results = metropolis_symmetric(tf, init_config, normal_proposal, num_walkers=n_walkers, num_steps=10000)
-dataset = az.convert_to_dataset(results.numpy())
-print(az.ess(dataset))
+#for sigma in numpy.linspace(0.01, 3, 30):
+   # def normal_proposal(old_point):
+     #symmetric
+   #     return Normal(old_point, sigma*torch.ones_like(old_point)).sample()
+   # tf= HarmonicTrialFunction(torch.ones(1))
+   # n_walkers = 2
+   # init_config = torch.ones(n_walkers, 1)
+   # results = metropolis_symmetric(tf, init_config, normal_proposal, num_walkers=n_walkers, num_steps=1000)
+   # dataset1 = az.convert_to_dataset(results.numpy())
+  #  dataset2 = az.convert_to_inference_data(results.numpy())
+
+
+   # az.plot_ess(dataset2, kind = "local")
+   # plt.savefig("Local")
+   # az.plot_ess(dataset2, kind = "quantile")
+   # plt.savefig("quantile")
+    #az.plot_ess(dataset2, kind = "evolution")
+    #plt.savefig("Evolution")
+#sigma = 1.8   
+#def normal_proposal(old_point):
+     #symmetric
+ #   return Normal(old_point, sigma*torch.ones_like(old_point)).sample()
+#tf= HarmonicTrialFunction(torch.ones(1))
+#n_walkers = 2
+#init_config = torch.ones(n_walkers, 1)
+#results = metropolis_symmetric(tf, init_config, normal_proposal, num_walkers=n_walkers, num_steps=1000000)
+#dataset1 = az.convert_to_dataset(results.numpy())
+#dataset2 = az.convert_to_inference_data(results.numpy())
+
+   
+#az.plot_trace(dataset2, compact=True)
+#plt.savefig('Trace Plot')
+
+    #print( az.ess(dataset1).data_vars[0])
+# In the Output_of_run array we are using units of 1000.    
+Output_of_run = numpy.array([0.02366, 1.087, 3.579, 7.21, 11.32, 15.9, 20.19, 25.2, 29.98, 32.94, 36.67, 39.41, 38.68, 42.96, 44.4, 45.35, 44.83, 45.94, 43.73, 46.34, 44.69, 45.15, 41.88,41.41, 41.33, 41, 38.46, 38.3, 37.49, 36.02]) 
+y_data = Output_of_run
+x_data = numpy.linspace(0.01, 3, 30)
+plt.scatter(x_data, y_data, c='r', label='ess scatter')
+plt.plot(x_data, y_data, label='ess fit')
+plt.xlabel('Standard deviation for Normal Distribution proposal function')
+plt.ylabel('ESS in units of one thousand samples')
+plt.title('ESS vs standard deviation ')
+plt.legend()
+plt.show()
+plt.savefig('ESS vs standard deviation')
