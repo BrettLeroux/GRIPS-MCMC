@@ -7,10 +7,8 @@ from qmc.wavefunction import HarmonicTrialFunction, HydrogenTrialWavefunction
 
 
 def energy_minimize_step(trialfunc, samples, optimizer):
-    with torch.no_grad():
-        local_energies = trialfunc.local_energy(samples).detach()
-        mean_local_energy = local_energies.mean()
-    local_energies.requires_grad_(True)
+    local_energies = trialfunc.local_energy(samples).detach()
+    mean_local_energy = local_energies.mean()
     sample_logprobs = trialfunc(samples)
     loss = ((local_energies - mean_local_energy) * sample_logprobs).mean()
     optimizer.zero_grad()
@@ -20,7 +18,7 @@ def energy_minimize_step(trialfunc, samples, optimizer):
 
 
 def vmc_iterate(tf, init_config, num_iters=100):
-    opt = optim.SGD(tf.parameters(), lr=1e-2,momentum=0.9)
+    opt = optim.SGD(tf.parameters(), lr=1e-1,momentum=0.5)
     # propdist = NormalProposal(0.3)
     propdist = ClipNormalProposal(0.3, min_val=0.0)
     for i in range(num_iters):
