@@ -69,7 +69,9 @@ class Rosenbrock(nn.Module):
     
     #Returns a N x d array of iid samples from the Hybrid rosenbrock above
     def Iid(self, N):
-        a = 1/20, b = 5, mu = 1
+        a = 1/20
+        b = 5
+        mu = 1
         S = np.zeros((1,self.n2*(self.n1-1)+1))
         for k in range(N):
             s = np.array([[]])
