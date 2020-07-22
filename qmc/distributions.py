@@ -64,9 +64,31 @@ class Rosenbrock(nn.Module):
     # gives the normalization constant
     def normalization(self):
         return ((1/20)**(1/2) * 5**((self.n2 * (self.n1-1)) / 2) ) / (np.pi)**((self.n2 * (self.n1 - 1) +1)/2)
-      
-      
-      
+    
+    
+    
+    #Returns a N x d array of iid samples from the Hybrid rosenbrock above
+    def Iid(self, N):
+        a = 1/20
+        b = 5
+        mu = 1
+        S = np.zeros((1,self.n2*(self.n1-1)+1))
+        for k in range(N):
+            s = np.array([[]])
+            y = np.random.normal(mu, 1/(2*a), size = (1,1))
+            s = np.concatenate((s,y),1)
+            for j in range(1, self.n2 + 1):
+                z = y
+                for i in range(2, self.n1 + 1):
+                    x = np.random.normal(z**2, 1/(2*b), size = (1,1))
+                    s = np.concatenate((s,x),1)
+                    z = x
+            S = np.concatenate((S,s))
+        return S[1:,:] 
+    
+    
+    
+    
   
 
 class MixtureOfGaussians(nn.Module):
