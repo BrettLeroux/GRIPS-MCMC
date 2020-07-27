@@ -33,10 +33,12 @@ class dim2Rosenbrock(nn.Module):
 class Rosenbrock(nn.Module):
     # Rosenbrock(n1,n2) creates the "Hybrid Rosenbrock" from https://arxiv.org/pdf/1903.09556.pdf with parameters a = 1/20, b = 5
     # The dimension is (n1-1)n2 + 1
-    def __init__(self, n1, n2):
+    def __init__(self, n1, n2, a=(1.0/20.0), b=5.0):
         super(Rosenbrock, self).__init__()
         self.n1 = n1
         self.n2 = n2
+        self.a = a
+        self.b = b
         
     def forward(self, x):
         # output logprob
@@ -47,8 +49,8 @@ class Rosenbrock(nn.Module):
             x = torch.reshape(x[:, :, 1:], (x.size()[0], x.size()[1], self.n2, self.n1-1))
             xx = x[:, :, :, 1:]
             xxx = x[:, :, :, 0:-1]
-            result = - (1/20) * (y -1)**2 
-            - 5 * torch.sum(torch.sum((xx - xxx**2)**2, -1), -1)
+            result = - (self.a) * (y -1)**2
+            - (self.b) * torch.sum(torch.sum((xx - xxx**2)**2, -1), -1)
             
         else:
             x = x if dim1 else x.unsqueeze(0)
@@ -56,7 +58,7 @@ class Rosenbrock(nn.Module):
             x = torch.reshape(x[:, 1:], (x.size()[0], self.n2, self.n1-1))
             xx = x[:, :, 1:]
             xxx = x[:, :, 0:-1]
-            result = - (1/20) * (y -1)**2 - 5 * torch.sum(torch.sum((xx - xxx**2)**2,-1), -1)
+            result = - (self.a) * (y -1)**2 - self.b * torch.sum(torch.sum((xx - xxx**2)**2,-1), -1)
         return result if dim1 else result.squeeze(0)
       
       
@@ -69,8 +71,8 @@ class Rosenbrock(nn.Module):
     
     #Returns a N x d array of iid samples from the Hybrid rosenbrock above
     def Iid(self, N):
-        a = 1/20
-        b = 5
+        a = self.a
+        b = self.b
         mu = 1
         S = np.zeros((1,self.n2*(self.n1-1)+1))
         for k in range(N):
