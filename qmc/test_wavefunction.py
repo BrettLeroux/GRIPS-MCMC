@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 from qmc.wavefunction import HarmonicTrialFunction, ParticleBoxFunction
+=======
+from qmc.wavefunction import HarmonicTrialFunction, ParticleBoxFunction, HydrogenTrialWavefunction, \
+    HeliumTrialWavefunction
+>>>>>>> 1a420066ab6e05f2183d89d401483cdc7183fb9b
 import torch
 import numpy as np
 from hypothesis import given
@@ -16,6 +21,97 @@ from hypothesis.strategies import floats
 # all trial wavefunctions pass tests like this will allow for a consistent interface.
 # Any new test must be a function whose name starts with test_
 
+<<<<<<< HEAD
+=======
+def test_helium_logprob_dims():
+    config_dimension = 3
+    f = HeliumTrialWavefunction(torch.tensor(1.0))
+
+    # for multiple walkers, output should one scalar per walker
+    input = 0.5*torch.ones(10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 10
+
+    input = 0.5*torch.ones(1, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 1
+
+    # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
+    input = 0.5*torch.ones(5, 10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 2
+    assert output.shape[0] == 5
+    assert output.shape[1] == 10
+
+def test_helium_local_energy_dims():
+    config_dimension = 3
+    f = HeliumTrialWavefunction(torch.tensor(1.0))
+
+    # for multiple walkers, output should one scalar per walker
+    input = 0.5*torch.ones(10, config_dimension)
+    output = f.local_energy(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 10
+
+    input = 0.5*torch.ones(1, config_dimension)
+    output = f.local_energy(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 1
+
+    # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
+    input = 0.5*torch.ones(5, 10, config_dimension)
+    output = f.local_energy(input)
+    assert len(output.shape) == 2
+    assert output.shape[0] == 5
+    assert output.shape[1] == 10
+
+def test_hydrogen_logprob_dims():
+    config_dimension = 1
+    f = HydrogenTrialWavefunction(torch.tensor(1.0))
+
+    # for multiple walkers, output should one scalar per walker
+    input = 0.5*torch.ones(10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 10
+
+    input = 0.5*torch.ones(1, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 1
+
+    # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
+    input = 0.5*torch.ones(5, 10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 2
+    assert output.shape[0] == 5
+    assert output.shape[1] == 10
+
+def test_hydrogen_local_energy_dims():
+    config_dimension = 1
+    f = HydrogenTrialWavefunction(torch.tensor(1.0))
+
+    # for multiple walkers, output should one scalar per walker
+    input = 0.5*torch.ones(10, config_dimension)
+    output = f.local_energy(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 10
+
+    input = 0.5*torch.ones(1, config_dimension)
+    output = f.local_energy(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 1
+
+    # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
+    input = 0.5*torch.ones(5, 10, config_dimension)
+    output = f.local_energy(input)
+    assert len(output.shape) == 2
+    assert output.shape[0] == 5
+    assert output.shape[1] == 10
+
+>>>>>>> 1a420066ab6e05f2183d89d401483cdc7183fb9b
 def test_harmonic_logprob_dims():
     config_dimension = 1
 
@@ -79,7 +175,7 @@ def test_particlebox_logprob_dims():
 # TODO add more Hypothesis code to check for NaN on random inputs in domain
 
 
-@given(arrays(np.float, (1, 1), elements=floats(-10, 10)), floats(min_value=0, max_value=20))
+@given(arrays(np.float, (1, 1), elements=floats(-10, 10)), floats(min_value=0.01, max_value=5))
 def test_harmonic_nan(configs, alpha):
     f = HarmonicTrialFunction(torch.tensor(alpha))
     inputs = torch.tensor(configs)

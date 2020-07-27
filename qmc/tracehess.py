@@ -39,26 +39,17 @@ def hessian_f(x, the_func):
 
 def autograd_trace_hessian(the_func, x):
 
-    # uses the following trick:
-    # d^2 f/dz^2 f(x + z*1), where 1 denotes a vector of ones
-    # and z is a single scalar, when evaluated at z=0,
-    # will give the trace of the Hessian evaluated
-    # at x, i.e. trace(\nabla_x^2 f(x))
-
     assert (
         len(x.shape) >= 2
     ), "x must have some batch dims. if you want to work on a single configuration, try x.unsqueeze(0) to make it be shape [1,d]"
 
-    all_ones = torch.ones_like(x)
-    f_plus_z = lambda z: the_func(x + z * all_ones)
-    batch_zero = torch.zeros(list(x.shape[:-1]) + [1], requires_grad=True)
-    fout = f_plus_z(batch_zero)
+    x.requires_grad_()
+    fout = the_func(x)
     (gradient,) = torch.autograd.grad(
-        fout, batch_zero, grad_outputs=torch.ones_like(fout), create_graph=True
-    )
-    (second_deriv,) = torch.autograd.grad(
-        gradient, batch_zero, grad_outputs=torch.ones_like(gradient)
+        fout, x, grad_outputs=torch.ones_like(fout), create_graph=True
     )
 
-    # should return a batched array of scalars, so remove last dim which should be of size 1
-    return second_deriv.squeeze(dim=-1)
+    lap = sum(torch.autograd.grad(
+        gradient[..., i], x, grad_outputs=torch.ones_like(gradient[..., i]), retain_graph=True
+    )[0][..., i] for i in range(x.shape[-1]))
+    return lap

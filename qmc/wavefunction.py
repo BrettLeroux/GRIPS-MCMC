@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from qmc.autograd import autograd_trace_hessian
+#from qmc.autograd import autograd_trace_hessian
 from torch import nn, optim
 from torch.distributions import Normal, Bernoulli
 LOGPI = np.log(np.pi)
@@ -63,7 +63,7 @@ class HydrogenTrialWavefunction(nn.Module):
      #   return self.alpha*x*torch.exp(-self.alpha*x)
 
 
-    def local_energy(self, x):
+    #def local_energy(self, x):
         return (-(1.0/x)-(0.5*autograd_trace_hessian(self.hydro_ansatz_sup,x)/(self.hydro_ansatz_sup(x))))
     def local_energy(self, x):
         return (-(1.0 / x) - (self.alpha / 2) * (self.alpha - (2.0 / x))).squeeze(dim=-1)
@@ -77,7 +77,7 @@ class HeliumTrialWavefunction(nn.Module):
         # outputs logprob
         # 2.0 * because it's |\Psi|^2
 
-        return 2.0*(3*torch.log(2-self.alpha)-torch.log(torch.tensor(np.pi))-(2-self.alpha)*(x[:, 0]+x[:, 1]))
+        return -self.alpha*(x[:,0]+x[:,1])
     #def helium_ansatz_sup(self, x):
     #    return (((2-self.alpha)**3)/np.pi)*torch.exp(-(2-self.alpha)*(x[:, 0]+x[:, 1]))
     #def helium_ansatz_sup1(self, x):
@@ -87,6 +87,4 @@ class HeliumTrialWavefunction(nn.Module):
     #def local_energy(self, x):
      #   return autograd_trace_hessian(self.helium_ansatz_sup1,x)*self.helium_ansatz_sup2(x)+autograd_trace_hessian(self.helium_ansatz_sup2,x)*self.helium_ansatz_sup1(x)+2*(1/x[:,0]+1/x[:,1])+1/(torch.sqrt(x[:,0]**2+x[:,1]**2+torch.abs(x[:,1])*torch.abs(x[:,0])*torch.cos(x[:,2])))
     def local_energy(self, x):
-        return -(2-self.alpha)**2+2*(1/x[:,0]+1/x[:,1])+1/(torch.sqrt(x[:,0]**2+x[:,1]**2+torch.abs(x[:,1])*torch.abs(x[:,0])*torch.cos(x[:,2])))  
-
-
+        return -(self.alpha**2)+(self.alpha)/x[:,0] +(self.alpha)/x[:,1] -(2)/x[:,0] -(2)/x[:,1] + (1)/((x[:,0])**2 +(x[:,1])**2+x[:,0]*x[:,1]*torch.cos(x[:,2] ))
