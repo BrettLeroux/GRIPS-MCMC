@@ -1,5 +1,5 @@
 from qmc.wavefunction import HarmonicTrialFunction, ParticleBoxFunction, HydrogenTrialWavefunction, \
-    HeliumTrialWavefunction
+    HeliumTrialWavefunction, NelectronVander, NelectronVanderWithMult
 import torch
 import numpy as np
 from hypothesis import given
@@ -16,6 +16,57 @@ from hypothesis.strategies import floats
 # and modify them (configuration dim, valid input values). ensuring
 # all trial wavefunctions pass tests like this will allow for a consistent interface.
 # Any new test must be a function whose name starts with test_
+
+
+def test_nelectron_vander_withmult_logprob_dims():
+    config_dimension = 2
+    f = NelectronVanderWithMult(torch.rand(config_dimension),torch.rand(1))
+
+    # for multiple walkers, output should one scalar per walker
+    input = 0.5*torch.ones(10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 10
+
+    input = 0.5*torch.ones(1, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 1
+
+    # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
+    input = 0.5*torch.ones(5, 10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 2
+    assert output.shape[0] == 5
+    assert output.shape[1] == 10
+
+
+
+def test_nelectron_vander_logprob_dims():
+    config_dimension = 2
+    f = NelectronVander(torch.rand(config_dimension))
+
+    # for multiple walkers, output should one scalar per walker
+    input = 0.5*torch.ones(10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 10
+
+    input = 0.5*torch.ones(1, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 1
+
+    # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
+    input = 0.5*torch.ones(5, 10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 2
+    assert output.shape[0] == 5
+    assert output.shape[1] == 10
+
+
+
+
 
 def test_helium_logprob_dims():
     config_dimension = 3
