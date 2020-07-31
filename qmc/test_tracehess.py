@@ -96,16 +96,19 @@ def test_autograd_trace_hess_exp(x):
 
 def test_autograd_trace_hess_batchdims():
     x1 = torch.ones(1, 3)
-    lap = autograd_trace_hessian(func_quadratic, x1)
+    lap, grad = autograd_trace_hessian(func_quadratic, x1, return_grad=True)
     assert lap.shape == torch.Size([1])
+    assert grad.shape == torch.Size([1, 3])
 
     x1 = torch.ones(5, 3)
-    lap = autograd_trace_hessian(func_quadratic, x1)
+    lap, grad = autograd_trace_hessian(func_quadratic, x1, return_grad=True)
     assert lap.shape == torch.Size([5])
+    assert grad.shape == torch.Size([5, 3])
 
     x1 = torch.ones(10, 5, 3)
-    lap = autograd_trace_hessian(func_quadratic, x1)
+    lap, grad = autograd_trace_hessian(func_quadratic, x1, return_grad=True)
     assert lap.shape == torch.Size([10, 5])
+    assert grad.shape == torch.Size([10, 5, 3])
 
 
 @given(floats(-10, 10))
