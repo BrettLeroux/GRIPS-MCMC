@@ -37,7 +37,7 @@ def hessian_f(x, the_func):
     return hessian
 
 
-def autograd_trace_hessian(the_func, x):
+def autograd_trace_hessian(the_func, x, return_grad=False):
 
     assert (
         len(x.shape) >= 2
@@ -52,4 +52,7 @@ def autograd_trace_hessian(the_func, x):
     lap = sum(torch.autograd.grad(
         gradient[..., i], x, grad_outputs=torch.ones_like(gradient[..., i]), retain_graph=True
     )[0][..., i] for i in range(x.shape[-1]))
-    return lap
+    if return_grad:
+        return lap, gradient
+    else:
+        return lap
