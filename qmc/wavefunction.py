@@ -69,6 +69,29 @@ class HydrogenTrialWavefunction(nn.Module):
     #def local_energy(self, x):
       #  return (-(1.0 / x) - (self.alpha / 2) * (self.alpha - (2.0 / x))).squeeze(dim=-1)
 
+
+class NElectronSlater(nn.Module):
+    def __init__(self, alpha):
+        super(NElectronSlater, self).__init__()
+        # alpha is of size N, it's the number of basis functions
+        self.alpha = nn.Parameter(alpha)
+
+    def _slater_mat(self, x):
+        x = x.unsqueeze(-1)
+        slater_mat = torch.exp(-x * self.alpha)
+        return slater_mat
+
+    def forward(self, x):
+        slater_mat = self._slater_mat(x)
+        logdet, signs = slater_mat.slogdet()
+        return 2.0*logdet
+
+    def wave(self, x):
+        slater_mat = self._slater_mat(x)
+
+        det = slater_mat.det()
+        return det
+
 class HeliumTrialWavefunction(nn.Module):
     def __init__(self, alpha):
         super(HeliumTrialWavefunction, self).__init__()
