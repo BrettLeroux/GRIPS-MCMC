@@ -78,7 +78,7 @@ class HeliumTrialWavefunction(nn.Module):
         # outputs logprob
         # 2.0 * because it's |\Psi|^2
 
-        return -2*self.alpha*(x[...,0]+x[...,1])-1/(x[...,0])-1/(x[...,1])#+2*torch.log(self.alpha) + 2*torch.log(x[...,0]+x[...,1])
+        return 2.0*(-self.alpha*(x[...,0]+x[...,1])-1/(x[...,0])-1/(x[...,1]))#+2*torch.log(self.alpha) + 2*torch.log(x[...,0]+x[...,1])
     #def helium_ansatz_sup_simple(self,x):
        # x = x.squeeze(dim=-1)
       #  return torch.exp(-self.alpha*(x[...,0]+x[...,1]))
@@ -93,6 +93,11 @@ class HeliumTrialWavefunction(nn.Module):
 
     def wave(self, x):
         return torch.exp(self.forward(x) / 2.0)
+
+    def existing_local_energy(self, x):
+        return -(self.alpha) ** 2 + (self.alpha / (x[..., 0]) + self.alpha / (x[..., 1]) - 2 * (
+                    1 / (x[..., 0]) + 1 / (x[..., 1])) + 1 / (torch.sqrt(
+            x[..., 0] ** 2 + x[..., 1] ** 2 + torch.abs(x[..., 1]) * torch.abs(x[..., 0]) * torch.cos(x[..., 2]))))
 
     def local_energy(self, x):
         return auto_hamiltonian_generator_atoms(self, 2, x) / self.wave(x)
