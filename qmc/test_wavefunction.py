@@ -1,5 +1,5 @@
 from qmc.wavefunction import HarmonicTrialFunction, ParticleBoxFunction, HydrogenTrialWavefunction, \
-    HeliumTrialWavefunction, NelectronVander, NelectronVanderWithMult
+    HeliumTrialWavefunction, NelectronVander, NelectronVanderWithMult, NElectronSlater
 import torch
 import numpy as np
 from hypothesis import given
@@ -50,8 +50,7 @@ def test_nelectron_vanderWithmult_asym():
 def test_nelectron_vander_withmult_logprob_dims():
     config_dimension = 2
     f = NelectronVanderWithMult(torch.rand(1), torch.rand(1), config_dimension)
-
-    # for multiple walkers, output should one scalar per walker
+    
     input = 0.5*torch.ones(10, config_dimension)
     output = f(input)
     assert len(output.shape) == 1
@@ -69,6 +68,27 @@ def test_nelectron_vander_withmult_logprob_dims():
     assert output.shape[0] == 5
     assert output.shape[1] == 10
 
+
+def test_nelectron_slater_logprob_dims():
+    config_dimension = 2
+    f = NElectronSlater(torch.rand(config_dimension))
+    # for multiple walkers, output should one scalar per walker
+    input = 0.5*torch.ones(10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 10
+
+    input = 0.5*torch.ones(1, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 1
+    assert output.shape[0] == 1
+
+    # for multiple iterations of multiple walkers, output should be one scalar per walker and iteration
+    input = 0.5*torch.ones(5, 10, config_dimension)
+    output = f(input)
+    assert len(output.shape) == 2
+    assert output.shape[0] == 5
+    assert output.shape[1] == 10
 
 
 def test_nelectron_vander_logprob_dims():
@@ -92,8 +112,6 @@ def test_nelectron_vander_logprob_dims():
     assert len(output.shape) == 2
     assert output.shape[0] == 5
     assert output.shape[1] == 10
-
-
 
 
 
@@ -254,6 +272,14 @@ def test_particlebox_logprob_dims():
 # particlebox local energy is a constant, so not testing its output dimensionality
 
 # TODO add more Hypothesis code to check for NaN on random inputs in domain
+
+
+@given(arrays(np.float, (1, 2), elements=floats(0.10999999940395355, 10)), arrays(np.float, (2,), elements=floats(0.10999999940395355, 10)))
+def test_slaterdet_nan(configs, alpha):
+    f = NElectronSlater(torch.tensor(alpha))
+    inputs = torch.tensor(configs)
+    outputs = f(inputs)
+    assert not torch.isnan(outputs).any()
 
 
 @given(arrays(np.float, (1, 1), elements=floats(-10, 10)), floats(min_value=0.01, max_value=5))

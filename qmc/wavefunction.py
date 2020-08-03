@@ -1,6 +1,7 @@
-  
 import torch
 import numpy as np
+
+from qmc.local_energy import auto_hamiltonian_generator_atoms
 from qmc.tracehess import autograd_trace_hessian
 from torch import nn, optim
 from torch.distributions import Normal, Bernoulli
@@ -53,6 +54,7 @@ class HydrogenTrialWavefunction(nn.Module):
         super(HydrogenTrialWavefunction, self).__init__()
         self.alpha = nn.Parameter(alpha)
     
+
     def forward(self, x):
          #outputs logprob
          #2.0 * because it's |\Psi|^2
@@ -67,6 +69,29 @@ class HydrogenTrialWavefunction(nn.Module):
     #def local_energy(self, x):
       #  return (-(1.0 / x) - (self.alpha / 2) * (self.alpha - (2.0 / x))).squeeze(dim=-1)
 
+
+class NElectronSlater(nn.Module):
+    def __init__(self, alpha):
+        super(NElectronSlater, self).__init__()
+        # alpha is of size N, it's the number of basis functions
+        self.alpha = nn.Parameter(alpha)
+
+    def _slater_mat(self, x):
+        x = x.unsqueeze(-1)
+        slater_mat = torch.exp(-x * self.alpha)
+        return slater_mat
+
+    def forward(self, x):
+        slater_mat = self._slater_mat(x)
+        logdet, signs = slater_mat.slogdet()
+        return 2.0*logdet
+
+    def wave(self, x):
+        slater_mat = self._slater_mat(x)
+
+        det = slater_mat.det()
+        return det
+
 class HeliumTrialWavefunction(nn.Module):
     def __init__(self, alpha):
         super(HeliumTrialWavefunction, self).__init__()
@@ -76,19 +101,29 @@ class HeliumTrialWavefunction(nn.Module):
         # outputs logprob
         # 2.0 * because it's |\Psi|^2
 
-        return 2.0*(3*torch.log(2-self.alpha)-torch.log(torch.tensor(np.pi))-(2-self.alpha)*(x[..., 0]+x[..., 1]))
+        return 2.0*(-self.alpha*(x[...,0]+x[...,1])-1/(x[...,0])-1/(x[...,1]))#+2*torch.log(self.alpha) + 2*torch.log(x[...,0]+x[...,1])
+    #def helium_ansatz_sup_simple(self,x):
+       # x = x.squeeze(dim=-1)
+      #  return torch.exp(-self.alpha*(x[...,0]+x[...,1]))
     #def helium_ansatz_sup(self, x):
-    #    return (((2-self.alpha)**3)/np.pi)*torch.exp(-(2-self.alpha)*(x[:, 0]+x[:, 1]))
+       # return (((2-self.alpha)**3)/np.pi)*torch.exp(-(2-self.alpha)*(x[:, 0]+x[:, 1]))
     #def helium_ansatz_sup1(self, x):
     #    return (((2-self.alpha)**3)/np.pi)*torch.exp(-(2-self.alpha)*(x[:, 0]))
     #def helium_ansatz_sup2(self, x):
     #    return (((2-self.alpha)**3)/np.pi)*torch.exp(-(2-self.alpha)*(x[:, 1]))
     #def local_energy(self, x):
      #   return autograd_trace_hessian(self.helium_ansatz_sup1,x)*self.helium_ansatz_sup2(x)+autograd_trace_hessian(self.helium_ansatz_sup2,x)*self.helium_ansatz_sup1(x)+2*(1/x[:,0]+1/x[:,1])+1/(torch.sqrt(x[:,0]**2+x[:,1]**2+torch.abs(x[:,1])*torch.abs(x[:,0])*torch.cos(x[:,2])))
+
+    def wave(self, x):
+        return torch.exp(self.forward(x) / 2.0)
+
+    def existing_local_energy(self, x):
+        return -(self.alpha) ** 2 + (self.alpha / (x[..., 0]) + self.alpha / (x[..., 1]) - 2 * (
+                    1 / (x[..., 0]) + 1 / (x[..., 1])) + 1 / (torch.sqrt(
+            x[..., 0] ** 2 + x[..., 1] ** 2 + torch.abs(x[..., 1]) * torch.abs(x[..., 0]) * torch.cos(x[..., 2]))))
+
     def local_energy(self, x):
-        return -(2-self.alpha)**2+2*(1/x[...,0]+1/x[...,1])+1/(torch.sqrt(x[...,0]**2+x[...,1]**2+torch.abs(x[...,1])*torch.abs(x[...,0])*torch.cos(x[...,2])))
-
-
+        return auto_hamiltonian_generator_atoms(self, 2, x) / self.wave(x)
 
 
 class NelectronVander(nn.Module):
@@ -205,6 +240,3 @@ class NelectronVanderCuspWithMult(nn.Module):
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
         return torch.exp(-torch.sum(1/x, -1)) * torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
  
-    
-
-
