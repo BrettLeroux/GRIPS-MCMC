@@ -22,7 +22,7 @@ from hypothesis.strategies import floats
 
 def test_nelectron_vander_asym():
     config_dimension = 5
-    f = NelectronVander(torch.rand(1), torch.ones(config_dimension))
+    f = NelectronVander(torch.rand(1), config_dimension)
     x = torch.rand(1000,config_dimension)
     for i in range(1000):
         t = torch.randperm(config_dimension)[:2]
@@ -34,7 +34,7 @@ def test_nelectron_vander_asym():
 
 def test_nelectron_vanderWithmult_asym():
     config_dimension = 5
-    f = NelectronVanderWithMult(torch.rand(1),torch.rand(1), torch.ones(config_dimension))
+    f = NelectronVanderWithMult(torch.rand(1),torch.rand(1), config_dimension)
     x = torch.rand(1000,config_dimension)
     for i in range(1000):
         t = torch.randperm(config_dimension)[:2]
@@ -49,7 +49,7 @@ def test_nelectron_vanderWithmult_asym():
 
 def test_nelectron_vander_withmult_logprob_dims():
     config_dimension = 2
-    f = NelectronVanderWithMult(torch.rand(1), torch.rand(1), torch.ones(config_dimension))
+    f = NelectronVanderWithMult(torch.rand(1), torch.rand(1), config_dimension)
 
     # for multiple walkers, output should one scalar per walker
     input = 0.5*torch.ones(10, config_dimension)
@@ -73,7 +73,7 @@ def test_nelectron_vander_withmult_logprob_dims():
 
 def test_nelectron_vander_logprob_dims():
     config_dimension = 2
-    f = NelectronVander(torch.rand(1), torch.ones(config_dimension))
+    f = NelectronVander(torch.rand(1), config_dimension)
 
     # for multiple walkers, output should one scalar per walker
     input = 0.5*torch.ones(10, config_dimension)
