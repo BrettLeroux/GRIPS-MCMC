@@ -1,7 +1,6 @@
+  
 import torch
 import numpy as np
-
-from qmc.local_energy import auto_hamiltonian_generator_atoms
 from qmc.tracehess import autograd_trace_hessian
 from torch import nn, optim
 from torch.distributions import Normal, Bernoulli
@@ -78,10 +77,10 @@ class HeliumTrialWavefunction(nn.Module):
         # outputs logprob
         # 2.0 * because it's |\Psi|^2
 
-        return 2.0*(-self.alpha*(x[...,0]+x[...,1])-1/(x[...,0])-1/(x[...,1]))#+2*torch.log(self.alpha) + 2*torch.log(x[...,0]+x[...,1])
-    #def helium_ansatz_sup_simple(self,x):
-       # x = x.squeeze(dim=-1)
-      #  return torch.exp(-self.alpha*(x[...,0]+x[...,1]))
+        return -2*self.alpha*(x[...,0]+x[...,1])#-1/(x[...,0])-1/(x[...,1])#+2*torch.log(self.alpha) + 2*torch.log(x[...,0]+x[...,1])
+    def helium_ansatz_sup_simple(self,x):
+        x = x.squeeze(dim=-1)
+        return torch.exp(-self.alpha*(x[...,0])+x[...,1]))
     #def helium_ansatz_sup(self, x):
        # return (((2-self.alpha)**3)/np.pi)*torch.exp(-(2-self.alpha)*(x[:, 0]+x[:, 1]))
     #def helium_ansatz_sup1(self, x):
@@ -90,15 +89,19 @@ class HeliumTrialWavefunction(nn.Module):
     #    return (((2-self.alpha)**3)/np.pi)*torch.exp(-(2-self.alpha)*(x[:, 1]))
     #def local_energy(self, x):
      #   return autograd_trace_hessian(self.helium_ansatz_sup1,x)*self.helium_ansatz_sup2(x)+autograd_trace_hessian(self.helium_ansatz_sup2,x)*self.helium_ansatz_sup1(x)+2*(1/x[:,0]+1/x[:,1])+1/(torch.sqrt(x[:,0]**2+x[:,1]**2+torch.abs(x[:,1])*torch.abs(x[:,0])*torch.cos(x[:,2])))
-
-    def wave(self, x):
-        return torch.exp(self.forward(x) / 2.0)
-
-    def existing_local_energy(self, x):
-        return -(self.alpha) ** 2 + (self.alpha / (x[..., 0]) + self.alpha / (x[..., 1]) - 2 * (
-                    1 / (x[..., 0]) + 1 / (x[..., 1])) + 1 / (torch.sqrt(
-            x[..., 0] ** 2 + x[..., 1] ** 2 + torch.abs(x[..., 1]) * torch.abs(x[..., 0]) * torch.cos(x[..., 2]))))
-
     def local_energy(self, x):
-        return auto_hamiltonian_generator_atoms(self, 2, x) / self.wave(x)
+        return -(self.alpha)**2+(self.alpha/(x[...,0])+self.alpha/(x[...,1])-2*(1/(x[...,0])+1/(x[...,1]))+1/(torch.sqrt(x[...,0]**2+x[...,1]**2+torch.abs(x[...,1])*torch.abs(x[...,0])*torch.cos(x[...,2]))))
 
+class ThreeElectronBasicAnsatzNoVandermonde(nn.Module):
+    def __init__(self, alpha):
+        super (ThreeElectronBasicAnsatzNoVandermonde, self).__init__()
+        self.alpha = nn.Parameter(alpha.clone().detach())
+
+    #def forward(self, x):
+        # outputs logprob
+        # 2.0 * because it's |\Psi|^2
+
+        #return Automatize log of mod squred calculatio
+    def three_elec_ansatz_sup_simple(self,x):
+        x = x.squeeze(dim=-1)
+        return torch.exp(-self.alpha*(x[...,0]+x[...,1]+x[...,2]))
