@@ -149,7 +149,7 @@ class NelectronVanderCusp(nn.Module):
     #ansatz given by the Vandermonde determinant of the one electron wavefunctions e^(-alpha*r_i) multiplied by product of e^(-1/r_i) for all i
     #input is 1-element tensor alpha and 1D tensor dim which determines the number of particles (i.e. the dimension)
     def __init__(self, alpha, dim):
-        super(NelectronVander, self).__init__()
+        super(NelectronVanderCusp, self).__init__()
         self.alpha = nn.Parameter(alpha)
         self.dim = dim
             
@@ -214,7 +214,7 @@ class NelectronVanderCuspWithMult(nn.Module):
     #multiplied by e^(-beta * (r_1 + r_2 + ... r_N)) and multiplied by product of e^(-1/r_i) for all i
     #input is 1-element tensors alpha, beta and 1D tensor dim which determines the number of particles (i.e. the dimension)
     def __init__(self, alpha, beta, dim):
-        super(NelectronVanderWithMult, self).__init__()
+        super(NelectronVanderCuspWithMult, self).__init__()
         self.alpha = nn.Parameter(alpha)
         self.beta = nn.Parameter(beta)
         self.dim = dim
