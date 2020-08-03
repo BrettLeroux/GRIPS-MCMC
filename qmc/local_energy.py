@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.linalg as la
 import torch
-from qmc.wavefunction import HeliumTrialWavefunction, HydrogenTrialWavefunction
 from qmc.tracehess import autograd_trace_hessian, gradient_f, hessian_f
 
 
@@ -27,13 +26,3 @@ def auto_hamiltonian_generator_atoms(ansatz, N_bodies, config):  #Unitless for n
     energy_total = kinetic_total+potential_nucleous_electron+potential_electron_electron
     return energy_total
    
-tf_0=HeliumTrialWavefunction(torch.ones(1)*1.8)
-tf_1=HydrogenTrialWavefunction(torch.ones(2))
-
-def local_energy_of_psi_at_x(ansatz, N_bodies, config):
-    local_energy_at_x = auto_hamiltonian_generator_atoms(ansatz, N_bodies, config)/ansatz.wave(config)
-
-    return local_energy_at_x
-
-print(local_energy_of_psi_at_x(tf_0, 2, torch.ones(10, 4, 3)))
-

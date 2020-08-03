@@ -1,5 +1,7 @@
 import torch
 import numpy as np
+
+from qmc.local_energy import auto_hamiltonian_generator_atoms
 from qmc.tracehess import autograd_trace_hessian
 from torch import nn, optim
 from torch.distributions import Normal, Bernoulli
@@ -93,5 +95,5 @@ class HeliumTrialWavefunction(nn.Module):
         return torch.exp(self.forward(x) / 2.0)
 
     def local_energy(self, x):
-        return -(self.alpha)**2+(self.alpha/(x[...,0])+self.alpha/(x[...,1])-2*(1/(x[...,0])+1/(x[...,1]))+1/(torch.sqrt(x[...,0]**2+x[...,1]**2+torch.abs(x[...,1])*torch.abs(x[...,0])*torch.cos(x[...,2]))))
+        return auto_hamiltonian_generator_atoms(self, 2, x) / self.wave(x)
 
