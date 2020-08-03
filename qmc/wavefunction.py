@@ -113,20 +113,20 @@ class NelectronVander(nn.Module):
     def __init__(self, alpha, dim):
         super(NelectronVander, self).__init__()
         self.alpha = nn.Parameter(alpha)
-        self.dim = nn.Parameter(dim)
+        self.dim = dim
             
     def forward(self, x):
         #returns the log prob. of the wavefunction
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return 2 * torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[1] ])),-1)
+        return 2 * torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ])),-1)
     
     
     def wave(self,x):
         # Returns the value of the wavefunction
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return torch.prod(a[...,torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
+        return torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
     
     
         
@@ -138,19 +138,19 @@ class NelectronVanderCusp(nn.Module):
     def __init__(self, alpha, dim):
         super(NelectronVander, self).__init__()
         self.alpha = nn.Parameter(alpha)
-        self.dim = nn.Parameter(dim)
+        self.dim = dim
             
     def forward(self, x):
         #returns the log prob. of the wavefunction
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return 2 * (-torch.sum(1/x, -1) + torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[1] ])),-1))
+        return 2 * (-torch.sum(1/x, -1) + torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ])),-1))
     
     def wave(self,x):
         # Returns the value of the wavefunction
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return torch.exp(-torch.sum(1/x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
+        return torch.exp(-torch.sum(1/x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
     
     
         
@@ -170,7 +170,7 @@ class NelectronVanderWithMult(nn.Module):
         super(NelectronVanderWithMult, self).__init__()
         self.alpha = nn.Parameter(alpha)
         self.beta = nn.Parameter(beta)
-        self.dim = nn.Parameter(dim)
+        self.dim = dim
 
     
     def forward(self, x):
@@ -178,14 +178,14 @@ class NelectronVanderWithMult(nn.Module):
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
         return 2 * ( -self.beta * torch.sum(x, -1)
-            + torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[1] ])),-1) )
+            + torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ])),-1) )
     
     
     def wave(self, x):
         # Returns the value of the wavefunction
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
+        return torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
     
     
 
@@ -204,7 +204,7 @@ class NelectronVanderCuspWithMult(nn.Module):
         super(NelectronVanderWithMult, self).__init__()
         self.alpha = nn.Parameter(alpha)
         self.beta = nn.Parameter(beta)
-        self.dim = nn.Parameter(dim)
+        self.dim = dim
 
 
     def forward(self, x):
@@ -212,15 +212,14 @@ class NelectronVanderCuspWithMult(nn.Module):
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
         return 2 * ( -self.beta * torch.sum(x, -1) - torch.sum(1/x, -1)
-            + torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[1] ])),-1) )
+            + torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ])),-1) )
 
 
     def wave(self,x):
         # Returns the value of the wavefunction
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return torch.exp(-torch.sum(1/x, -1)) * torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim.shape[0],self.dim.shape[0]), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
+        return torch.exp(-torch.sum(1/x, -1)) * torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
  
     
-
-
+        
