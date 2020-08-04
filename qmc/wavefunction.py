@@ -132,9 +132,6 @@ class HeliumTrialWavefunction(nn.Module):
     def local_energy(self, x):
         return auto_hamiltonian_generator_atoms(self, 2, x) / self.wave(x)
 
-<<<<<<< HEAD
-=======
-
 class NelectronVander(nn.Module):
     #ansatz given by the Vandermonde determinant of the one electron wavefunctions e^(-alpha*r_i)
     #input is 1-element tensor alpha and 1D tensor dim which determines the number of particles (i.e. the dimension)
