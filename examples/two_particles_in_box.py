@@ -13,7 +13,7 @@ tf = twoinone(a)
 # 
 n_walkers=10
 init_config = torch.ones(n_walkers,2)
-results = metropolis_symmetric(tf, init_config, ClipNormalProposal(sigma=0.001, min_val=0.0, max_val=0.5), num_walkers=n_walkers, num_steps=10000)
+results = metropolis_symmetric(tf, init_config, ClipNormalProposal(sigma=0.001, min_val=0.1, max_val=0.45), num_walkers=n_walkers, num_steps=10000)
 # %%
 #results_numpy  = results.view(-1,3).numpy()
 # %%
