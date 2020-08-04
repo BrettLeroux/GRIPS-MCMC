@@ -102,13 +102,13 @@ class HydrogenTrialWavefunction(nn.Module):
 class HeliumTrialWavefunction(nn.Module):
     def __init__(self, alpha):
         super(HeliumTrialWavefunction, self).__init__()
-        self.alpha = nn.Parameter(alpha.clone().detach())
+        self.alpha = nn.Parameter(alpha.clone())
 
     def forward(self, x):
         # outputs logprob
         # 2.0 * because it's |\Psi|^2
-
-        return 2.0*(-self.alpha*(x[...,0]+x[...,1])-1/(x[...,0])-1/(x[...,1]))#+2*torch.log(self.alpha) + 2*torch.log(x[...,0]+x[...,1])
+        negative_parts = -(1/torch.nn.functional.relu(x)).sum(dim=-1)
+        return 2.0*(negative_parts - self.alpha*(x[...,0]+x[...,1])-1/(x[...,0])-1/(x[...,1]))#+2*torch.log(self.alpha) + 2*torch.log(x[...,0]+x[...,1])
     #def helium_ansatz_sup_simple(self,x):
        # x = x.squeeze(dim=-1)
       #  return torch.exp(-self.alpha*(x[...,0]+x[...,1]))
