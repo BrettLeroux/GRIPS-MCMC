@@ -25,4 +25,3 @@ def auto_hamiltonian_generator_atoms(ansatz, N_bodies, config):  #Unitless for n
             k+=1
     energy_total = kinetic_total+potential_nucleous_electron+potential_electron_electron
     return energy_total
-   
