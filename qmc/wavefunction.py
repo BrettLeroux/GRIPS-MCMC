@@ -23,16 +23,16 @@ class TwoParticlesInOneDimBox(nn.Module):
         no_slater=torch.sin(np.pi*self.alpha[...,0]*x[...,0])*torch.sin(np.pi*self.alpha[...,1]*x[...,1])
         return no_slater
         
-    def local_energy(self,x):
-        return ((torch.cos(np.pi*self.alpha[...,0]*x[...,0]**2)*2*np.pi*self.alpha[...,0]-((np.pi*self.alpha[...,0])**2)*torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2))*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)
-                +(torch.cos(np.pi*self.alpha[...,1]*x[...,1]**2)*2*np.pi*self.alpha[...,1]-((np.pi*self.alpha[...,1])**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2))*torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)
-                -(torch.cos(np.pi*self.alpha[...,0]*x[...,1]**2)*2*np.pi*self.alpha[...,0]-((np.pi*self.alpha[...,0])**2)*torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2))*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2)
-                -(torch.cos(np.pi*self.alpha[...,1]*x[...,0]**2)*2*np.pi*self.alpha[...,1]-((np.pi*self.alpha[...,1])**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))*torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2))/(torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)-torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))
+    #def local_energy(self,x):
+      #  return ((torch.cos(np.pi*self.alpha[...,0]*x[...,0]**2)*2*np.pi*self.alpha[...,0]-((np.pi*self.alpha[...,0])**2)*torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2))*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)
+               # +(torch.cos(np.pi*self.alpha[...,1]*x[...,1]**2)*2*np.pi*self.alpha[...,1]-((np.pi*self.alpha[...,1])**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2))*torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)
+               # -(torch.cos(np.pi*self.alpha[...,0]*x[...,1]**2)*2*np.pi*self.alpha[...,0]-((np.pi*self.alpha[...,0])**2)*torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2))*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2)
+               # -(torch.cos(np.pi*self.alpha[...,1]*x[...,0]**2)*2*np.pi*self.alpha[...,1]-((np.pi*self.alpha[...,1])**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))*torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2))/(torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)-torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))
     
 
 
-    #def local_energy(self,x):
-      #  return autograd_trace_hessian(self.slater_ansatz_2_particle_in_box,x,return_grad = False)/self.slater_ansatz_2_particle_in_box(x)
+    def local_energy(self,x):
+        return autograd_trace_hessian(self.slater_ansatz_2_particle_in_box,x,return_grad = False)/self.slater_ansatz_2_particle_in_box(x)
        
         
 
@@ -132,121 +132,3 @@ class HeliumTrialWavefunction(nn.Module):
     def local_energy(self, x):
         return auto_hamiltonian_generator_atoms(self, 2, x) / self.wave(x)
 
-<<<<<<< HEAD
-=======
-
-class NelectronVander(nn.Module):
-    #ansatz given by the Vandermonde determinant of the one electron wavefunctions e^(-alpha*r_i)
-    #input is 1-element tensor alpha and 1D tensor dim which determines the number of particles (i.e. the dimension)
-    def __init__(self, alpha, dim):
-        super(NelectronVander, self).__init__()
-        self.alpha = nn.Parameter(alpha)
-        self.dim = dim
-            
-    def forward(self, x):
-        #returns the log prob. of the wavefunction
-        #input is tensor of size m x alpha.size or m x n x alpha.size
-        a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return 2 * torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ])),-1)
-    
-    
-    def wave(self,x):
-        # Returns the value of the wavefunction
-        #input is tensor of size m x alpha.size or m x n x alpha.size
-        a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
-    
-    
-        
-
-
-class NelectronVanderCusp(nn.Module):
-    #ansatz given by the Vandermonde determinant of the one electron wavefunctions e^(-alpha*r_i) multiplied by product of e^(-1/r_i) for all i
-    #input is 1-element tensor alpha and 1D tensor dim which determines the number of particles (i.e. the dimension)
-    def __init__(self, alpha, dim):
-        super(NelectronVanderCusp, self).__init__()
-        self.alpha = nn.Parameter(alpha)
-        self.dim = dim
-            
-    def forward(self, x):
-        #returns the log prob. of the wavefunction
-        #input is tensor of size m x alpha.size or m x n x alpha.size
-        a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return 2 * (-torch.sum(1/x, -1) + torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ])),-1))
-    
-    def wave(self,x):
-        # Returns the value of the wavefunction
-        #input is tensor of size m x alpha.size or m x n x alpha.size
-        a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return torch.exp(-torch.sum(1/x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
-    
-    
-        
-    
-    
-  
- 
-
-
-
-   
-class NelectronVanderWithMult(nn.Module):
-    #ansatz given by the Vandermonde determinant of the one electron wavefunctions e^(-alpha * r_i) 
-    #multiplied by e^(-beta * (r_1 + r_2 + ... r_N))
-    #input is 1-element tensors alpha, beta and 1D tensor dim which determines the number of particles (i.e. the dimension)
-    def __init__(self, alpha, beta, dim):
-        super(NelectronVanderWithMult, self).__init__()
-        self.alpha = nn.Parameter(alpha)
-        self.beta = nn.Parameter(beta)
-        self.dim = dim
-
-    
-    def forward(self, x):
-        #returns the log prob. of the wavefunction
-        #input is tensor of size m x alpha.size or m x n x alpha.size
-        a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return 2 * ( -self.beta * torch.sum(x, -1)
-            + torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ])),-1) )
-    
-    
-    def wave(self, x):
-        # Returns the value of the wavefunction
-        #input is tensor of size m x alpha.size or m x n x alpha.size
-        a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
-    
-    
-
-
-
-
- 
-
-                    
-
-class NelectronVanderCuspWithMult(nn.Module):
-    #ansatz given by the Vandermonde determinant of the one electron wavefunctions e^(-alpha * r_i)
-    #multiplied by e^(-beta * (r_1 + r_2 + ... r_N)) and multiplied by product of e^(-1/r_i) for all i
-    #input is 1-element tensors alpha, beta and 1D tensor dim which determines the number of particles (i.e. the dimension)
-    def __init__(self, alpha, beta, dim):
-        super(NelectronVanderCuspWithMult, self).__init__()
-        self.alpha = nn.Parameter(alpha)
-        self.beta = nn.Parameter(beta)
-        self.dim = dim
-
-
-    def forward(self, x):
-        #returns the log prob. of the wavefunction
-        #input is tensor of size m x alpha.size or m x n x alpha.size
-        a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return 2 * ( -self.beta * torch.sum(x, -1) - torch.sum(1/x, -1)
-            + torch.sum(torch.log(torch.abs(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ])),-1) )
-
-
-    def wave(self,x):
-        # Returns the value of the wavefunction
-        #input is tensor of size m x alpha.size or m x n x alpha.size
-        a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
-        return torch.exp(-torch.sum(1/x, -1)) * torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
- 
->>>>>>> bef1fb2efec35e22277888dc9977442cd325d794
