@@ -4,7 +4,7 @@ import numpy as np
 
 from qmc.mcmc import metropolis_symmetric, normal_proposal, clip_normal_proposal, NormalProposal, ClipNormalProposal
 from qmc.wavefunction import HarmonicTrialFunction, HydrogenTrialWavefunction, HeliumTrialWavefunction
-
+from qmc.wavefunction import TwoParticlesInOneDimBox as twoinone
 
 def energy_minimize_step(trialfunc, samples, optimizer):
     local_energies = trialfunc.local_energy(samples).detach()
@@ -64,10 +64,14 @@ def helium_energy_alpha_values():
         print(means[-1])
     return vals, means
 
-
 if __name__ == '__main__':
-    tf = HeliumTrialWavefunction(torch.ones(1))
-    init_config = 0.5*torch.ones(1000,3)
+    tf = twoinone(torch.tensor([0.5,3.5]))
+    init_config = 0.5*torch.ones(2)
     vmc_iterate(tf, init_config)
+    # helium_energy_alpha_values()
+#if __name__ == '__main__':
+#    tf = HeliumTrialWavefunction(torch.ones(1))
+ #   init_config = 0.5*torch.ones(1000,3)
+ #   vmc_iterate(tf, init_config)
     # helium_energy_alpha_values()
 
