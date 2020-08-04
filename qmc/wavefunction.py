@@ -132,8 +132,6 @@ class HeliumTrialWavefunction(nn.Module):
     def local_energy(self, x):
         return auto_hamiltonian_generator_atoms(self, 2, x) / self.wave(x)
 
-<<<<<<< HEAD
-=======
 
 class NelectronVander(nn.Module):
     #ansatz given by the Vandermonde determinant of the one electron wavefunctions e^(-alpha*r_i)
@@ -249,4 +247,3 @@ class NelectronVanderCuspWithMult(nn.Module):
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
         return torch.exp(-torch.sum(1/x, -1)) * torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
  
->>>>>>> bef1fb2efec35e22277888dc9977442cd325d794
