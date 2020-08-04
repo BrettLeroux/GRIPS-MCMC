@@ -15,7 +15,7 @@ class TwoParticlesInOneDimBox(nn.Module):
     def forward(self, x):
         two_dim_slater=(torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)-torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))
         abs_psi_squared = torch.abs(two_dim_slater)**2
-        return abs_psi_squared
+        return torch.log(abs_psi_squared)
     def slater_ansatz_2_particle_in_box(self,x):
         two_dim_slater_ansatz=(torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)-torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))
         return two_dim_slater_ansatz
