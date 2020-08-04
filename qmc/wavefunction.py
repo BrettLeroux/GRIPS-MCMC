@@ -248,5 +248,3 @@ class NelectronVanderCuspWithMult(nn.Module):
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
         return torch.exp(-torch.sum(1/x, -1)) * torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
- 
->>>>>>> 41c732616b2eadfeb1c34e2eb828d47019634572
