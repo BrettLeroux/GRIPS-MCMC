@@ -13,9 +13,12 @@ class TwoParticlesInOneDimBox(nn.Module):
         super(TwoParticlesInOneDimBox, self).__init__()
         self.alpha = nn.Parameter(alpha)
     def forward(self,x):
-         two_dim_slater = (torch.ones(1)-(x[...,0])**self.alpha[...,0])*(torch.ones(1)-(x[...,1])**self.alpha[...,1])
-         abs_psi_squared = two_dim_slater**2
-         return torch.log(abs_psi_squared)
+
+        two_dim_slater = (torch.ones(1)-torch.abs(x[...,0])**self.alpha[...,0])*(torch.ones(1)-torch.abs(x[...,1])**self.alpha[...,1])
+        abs_psi_squared = two_dim_slater**2
+        abs_psi_squared[x[...,0].abs() >= 1] = 0
+        abs_psi_squared[x[...,1].abs() >= 1] = 0
+        return torch.log(abs_psi_squared)
         
    
    # def forward(self, x):
@@ -31,9 +34,7 @@ class TwoParticlesInOneDimBox(nn.Module):
         return no_slater
     
     def slater_ansatz_2_particle_in_box(self,x):
-        two_dim_slater = (1-(x[...,0])**self.alpha[...,0])*(1-(x[...,1])**self.alpha[...,1])
-        print('Here is alpha1', self.alpha[...,0].shape)
-        print('Here is x1', x[...,0].shape)
+        two_dim_slater = (1-torch.abs(x[...,0])**self.alpha[...,0])*(1-torch.abs(x[...,1])**self.alpha[...,1])
         return two_dim_slater
    # def local_energy(self,x):
         #return ((torch.cos(np.pi*self.alpha[...,0]*x[...,0]**2)*2*np.pi*self.alpha[...,0]-((np.pi*self.alpha[...,0])**2)*torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2))*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)
@@ -44,7 +45,7 @@ class TwoParticlesInOneDimBox(nn.Module):
 
 
     def local_energy(self,x):
-        return -autograd_trace_hessian(self.slater_ansatz_2_particle_in_box,x,return_grad = False)#/self.slater_ansatz_2_particle_in_box(x)
+        return -autograd_trace_hessian(self.slater_ansatz_2_particle_in_box,x,return_grad = False)/self.slater_ansatz_2_particle_in_box(x)
        
         
 

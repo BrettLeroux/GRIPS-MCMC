@@ -21,11 +21,11 @@ def energy_minimize_step(trialfunc, samples, optimizer):
 
 
 def vmc_iterate(tf, init_config, num_iters=100):
-    opt = optim.SGD(tf.parameters(), lr=5e-2,momentum=0.0)
+    opt = optim.SGD(tf.parameters(), lr=5e-2,momentum=0.3)
     # propdist = NormalProposal(0.3)
-    propdist = ClipNormalProposal(0.01, min_val=0.0)
+    propdist = ClipNormalProposal(0.1)
     for i in range(num_iters):
-        results=metropolis_symmetric(tf, init_config, propdist, num_walkers=1000, num_steps=5000)
+        results=metropolis_symmetric(tf, init_config, propdist, num_walkers=100, num_steps=50000)
         energy_minimize_step(tf, results, opt)
         print(tf.alpha)
         print(tf.alpha[...,0])
@@ -67,7 +67,7 @@ def helium_energy_alpha_values():
     return vals, means
 
 if __name__ == '__main__':
-    tf = twoinone(torch.tensor([1,1.4]))
+    tf = twoinone(torch.tensor([3.0,2.5]))
     init_config = 0.5*torch.rand(2)
     vmc_iterate(tf, init_config)
     # helium_energy_alpha_values()
