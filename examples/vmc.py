@@ -28,6 +28,7 @@ def vmc_iterate(tf, init_config, num_iters=100):
         results=metropolis_symmetric(tf, init_config, propdist, num_walkers=1000, num_steps=5000)
         energy_minimize_step(tf, results, opt)
         print(tf.alpha)
+        print(tf.alpha[...,0])
 
 def harmonic_energy_alpha_values():
     vals = np.arange(0.2,1.5,0.1)
