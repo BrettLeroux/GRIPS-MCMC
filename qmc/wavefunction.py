@@ -12,21 +12,27 @@ class TwoParticlesInOneDimBox(nn.Module):
     def __init__(self, alpha):
         super(TwoParticlesInOneDimBox, self).__init__()
         self.alpha = nn.Parameter(alpha)
-    def forward(self, x):
-        two_dim_slater=(torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)-torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))
-        abs_psi_squared = torch.abs(two_dim_slater)**2
-        return torch.log(abs_psi_squared)
-    def slater_ansatz_2_particle_in_box(self,x):
-        two_dim_slater_ansatz=(torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)-torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))
-        return two_dim_slater_ansatz
+    def forward(self,x):
+         two_dim_slater =torch.exp(-1/torch.abs(x[...,0]-x[...,1]))*(torch.exp(-self.alpha[...,0]*x[...,0]**2)*torch.exp(-self.alpha[...,1]*x[...,1]**2)- torch.exp(-self.alpha[...,0]*x[...,1]**2)*torch.exp(-self.alpha[...,1]*x[...,0]**2))    
+         abs_psi_squared = torch.abs(two_dim_slater)**2
+         return torch.log(abs_psi_squared)
+   # def forward(self, x):
+    #    two_dim_slater=(torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)-torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))
+     #   abs_psi_squared = torch.abs(two_dim_slater)**2
+      #  return torch.log(abs_psi_squared)
+    #def slater_ansatz_2_particle_in_box(self,x):
+      #  two_dim_slater_ansatz=(torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)-torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))
+       # return two_dim_slater_ansatz
     def non_slater_ansatz(self,x):
         no_slater=torch.sin(np.pi*self.alpha[...,0]*x[...,0])*torch.sin(np.pi*self.alpha[...,1]*x[...,1])
         return no_slater
-        
-    #def local_energy(self,x):
-      #  return ((torch.cos(np.pi*self.alpha[...,0]*x[...,0]**2)*2*np.pi*self.alpha[...,0]-((np.pi*self.alpha[...,0])**2)*torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2))*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)
-               # +(torch.cos(np.pi*self.alpha[...,1]*x[...,1]**2)*2*np.pi*self.alpha[...,1]-((np.pi*self.alpha[...,1])**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2))*torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)
-               # -(torch.cos(np.pi*self.alpha[...,0]*x[...,1]**2)*2*np.pi*self.alpha[...,0]-((np.pi*self.alpha[...,0])**2)*torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2))*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2)
+    def slater_ansatz_2_particle_in_box(self,x):
+        two_dim_slater = torch.exp(-self.alpha[...,0]*x[...,0]**2)*torch.exp(-self.alpha[...,1]*x[...,1]**2)- torch.exp(-self.alpha[...,0]*x[...,1]**2)*torch.exp(-self.alpha[...,1]*x[...,0]**2)
+        return two_dim_slater
+   # def local_energy(self,x):
+        #return ((torch.cos(np.pi*self.alpha[...,0]*x[...,0]**2)*2*np.pi*self.alpha[...,0]-((np.pi*self.alpha[...,0])**2)*torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2))*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)
+                #+(torch.cos(np.pi*self.alpha[...,1]*x[...,1]**2)*2*np.pi*self.alpha[...,1]-((np.pi*self.alpha[...,1])**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2))*torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)
+                #-(torch.cos(np.pi*self.alpha[...,0]*x[...,1]**2)*2*np.pi*self.alpha[...,0]-((np.pi*self.alpha[...,0])**2)*torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2))*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2)
                # -(torch.cos(np.pi*self.alpha[...,1]*x[...,0]**2)*2*np.pi*self.alpha[...,1]-((np.pi*self.alpha[...,1])**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))*torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2))/(torch.sin(np.pi*self.alpha[...,0]*x[...,0]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,1]**2)-torch.sin(np.pi*self.alpha[...,0]*x[...,1]**2)*torch.sin(np.pi*self.alpha[...,1]*x[...,0]**2))
     
 
@@ -132,6 +138,11 @@ class HeliumTrialWavefunction(nn.Module):
     def local_energy(self, x):
         return auto_hamiltonian_generator_atoms(self, 2, x) / self.wave(x)
 
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 38129d5fc01f77195627e4a122e31514102df434
 class NelectronVander(nn.Module):
     #ansatz given by the Vandermonde determinant of the one electron wavefunctions e^(-alpha*r_i)
     #input is 1-element tensor alpha and 1D tensor dim which determines the number of particles (i.e. the dimension)
@@ -245,3 +256,7 @@ class NelectronVanderCuspWithMult(nn.Module):
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
         return torch.exp(-torch.sum(1/x, -1)) * torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
+<<<<<<< HEAD
+ 
+=======
+>>>>>>> 38129d5fc01f77195627e4a122e31514102df434

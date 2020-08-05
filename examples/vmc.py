@@ -16,6 +16,7 @@ def energy_minimize_step(trialfunc, samples, optimizer):
     loss.backward()
     print('grad is', trialfunc.alpha.grad)
     optimizer.step()
+    print(init_config)
 
 
 
@@ -65,8 +66,8 @@ def helium_energy_alpha_values():
     return vals, means
 
 if __name__ == '__main__':
-    tf = twoinone(torch.tensor([0.5,3.5]))
-    init_config = 0.5*torch.ones(2)
+    tf = twoinone(torch.tensor([1,1.4]))
+    init_config = 0.5*torch.rand(2)
     vmc_iterate(tf, init_config)
     # helium_energy_alpha_values()
 #if __name__ == '__main__':
