@@ -101,7 +101,9 @@ class HydrogenTrialWavefunction(nn.Module):
     def forward(self, x):
          #outputs logprob
          #2.0 * because it's |\Psi|^2
-        return 2.0 * (torch.log(self.alpha) + torch.log(x) - self.alpha * x).squeeze(dim=-1)
+        # return 2.0 * (torch.log(self.alpha) + torch.log(x) - self.alpha * x).squeeze(dim=-1)
+         # relu(x) here makes negatives 0, so that the whole thing is -inf when x negative
+        return 2.0 * (torch.log(self.alpha) + torch.log(torch.nn.functional.relu(x)) - self.alpha * x).squeeze(dim=-1)
 
     def hydro_ansatz_sup(self, x):
         x = x.squeeze(dim=-1)
