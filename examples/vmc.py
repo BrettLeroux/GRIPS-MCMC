@@ -5,7 +5,8 @@ import numpy as np
 from qmc.mcmc import metropolis_symmetric, normal_proposal, clip_normal_proposal, NormalProposal, ClipNormalProposal
 from qmc.wavefunction import HarmonicTrialFunction, HydrogenTrialWavefunction, HeliumTrialWavefunction
 from qmc.wavefunction import TwoParticlesInOneDimBox as twoinone
-
+from qmc.wavefunction import OneParticlesInOneDimBox as oneinone
+from qmc.wavefunction import HydrogenTrialWavefunction as htf
 def energy_minimize_step(trialfunc, samples, optimizer):
     local_energies = trialfunc.local_energy(samples).detach()
     mean_local_energy = local_energies.mean()
@@ -16,19 +17,19 @@ def energy_minimize_step(trialfunc, samples, optimizer):
     loss.backward()
     print('grad is', trialfunc.alpha.grad)
     optimizer.step()
-    print(init_config)
+   
 
 
-
-def vmc_iterate(tf, init_config, num_iters=100):
-    opt = optim.SGD(tf.parameters(), lr=5e-2,momentum=0.0)
+def vmc_iterate(tf, init_config, num_iters=200):
+    opt = optim.SGD(tf.parameters(), lr=5e-4,momentum=0.1)
     # propdist = NormalProposal(0.3)
-    propdist = ClipNormalProposal(0.01, min_val=0.0)
+    propdist = ClipNormalProposal(sigma = 0.0001, min_val=-1, max_val = 1)
     for i in range(num_iters):
-        results=metropolis_symmetric(tf, init_config, propdist, num_walkers=1000, num_steps=5000)
+        results=metropolis_symmetric(tf, init_config, propdist, num_walkers=10, num_steps=1000)
         energy_minimize_step(tf, results, opt)
         print(tf.alpha)
-        print(tf.alpha[...,0])
+        print(results)
+    
 
 def harmonic_energy_alpha_values():
     vals = np.arange(0.2,1.5,0.1)
@@ -66,14 +67,26 @@ def helium_energy_alpha_values():
         print(means[-1])
     return vals, means
 
+    #Oneparticle in box
+#if __name__ == '__main__':
+ #   tf = oneinone(torch.tensor(0.86))
+ #   init_config = 0.9*torch.ones(1)
+ #   vmc_iterate(tf, init_config)
+    #Twoparticles in box
 if __name__ == '__main__':
-    tf = twoinone(torch.tensor([1,1.4]))
-    init_config = 0.5*torch.rand(2)
+    tf = twoinone(torch.tensor([0.86,1]))
+    init_config = 0.5*torch.ones(2)
     vmc_iterate(tf, init_config)
     # helium_energy_alpha_values()
 #if __name__ == '__main__':
-#    tf = HeliumTrialWavefunction(torch.ones(1))
+ #   tf = HeliumTrialWavefunction(torch.ones(1))
  #   init_config = 0.5*torch.ones(1000,3)
  #   vmc_iterate(tf, init_config)
     # helium_energy_alpha_values()
+# Hydrogen
 
+    #Oneparticle in box
+#if __name__ == '__main__':
+#    tf = htf(torch.ones(1))
+#    init_config = torch.ones(1)
+#    vmc_iterate(tf, init_config)

@@ -6,7 +6,7 @@ from qmc.wavefunction import HeliumTrialWavefunction
 
 # %%
 d=3
-tf = HeliumTrialWavefunction(torch.ones(1))
+tf = HeliumTrialWavefunction(torch.ones(1)*1.6)
 
 # 
 n_walkers=10
