@@ -76,7 +76,7 @@ class HarmonicTrialFunction(nn.Module):
         return 2.0 * (0.5 * torch.log(self.alpha) - 0.25 * LOGPI - 0.5 * x * x * self.alpha * self.alpha).squeeze(dim=-1)
     def harmoni_ansatz_sup(self, x):
         # output dimensions should be either num_walkers x num_samples or just num_samples
-        return torch.sqrt(self.alpha)*torch.exp(-0.5*self.alpha*x**2).squeeze(dim=-1)
+        return torch.sqrt(self.alpha)*torch.exp(-0.5*self.alpha*self.alpha*x**2).squeeze(dim=-1)
     def local_energy(self, x):
         return ((x**2).squeeze(dim=-1)-(autograd_trace_hessian(self.harmoni_ansatz_sup,x)/(self.harmoni_ansatz_sup(x))))
 
