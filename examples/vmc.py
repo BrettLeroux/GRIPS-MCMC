@@ -20,12 +20,21 @@ def energy_minimize_step(trialfunc, samples, optimizer):
    
 
 
+<<<<<<< HEAD
 def vmc_iterate(tf, init_config, num_iters=200):
     opt = optim.SGD(tf.parameters(), lr=5e-4,momentum=0.1)
     # propdist = NormalProposal(0.3)
     propdist = ClipNormalProposal(sigma = 0.0001, min_val=-1, max_val = 1)
     for i in range(num_iters):
         results=metropolis_symmetric(tf, init_config, propdist, num_walkers=10, num_steps=1000)
+=======
+def vmc_iterate(tf, init_config, num_iters=100):
+    opt = optim.SGD(tf.parameters(), lr=5e-2,momentum=0.3)
+    # propdist = NormalProposal(0.3)
+    propdist = ClipNormalProposal(0.1)
+    for i in range(num_iters):
+        results=metropolis_symmetric(tf, init_config, propdist, num_walkers=100, num_steps=50000)
+>>>>>>> f653815a3b0d121cb2bff4959dab9c5ea4d63727
         energy_minimize_step(tf, results, opt)
         print(tf.alpha)
         print(results)
@@ -74,8 +83,13 @@ def helium_energy_alpha_values():
  #   vmc_iterate(tf, init_config)
     #Twoparticles in box
 if __name__ == '__main__':
+<<<<<<< HEAD
     tf = twoinone(torch.tensor([0.86,1]))
     init_config = 0.5*torch.ones(2)
+=======
+    tf = twoinone(torch.tensor([3.0,2.5]))
+    init_config = 0.5*torch.rand(2)
+>>>>>>> f653815a3b0d121cb2bff4959dab9c5ea4d63727
     vmc_iterate(tf, init_config)
     # helium_energy_alpha_values()
 #if __name__ == '__main__':
