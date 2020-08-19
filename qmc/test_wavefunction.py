@@ -50,6 +50,8 @@ def test_nelectron_vanderWithmult_asym():
 def test_nelectron_vander_withmult_logprob_dims():
     config_dimension = 2
     f = NelectronVanderWithMult(torch.rand(1), torch.rand(1), config_dimension)
+
+    # for multiple walkers, output should one scalar per walker
     input = 0.5*torch.ones(10, config_dimension)
     output = f(input)
     assert len(output.shape) == 1

@@ -190,7 +190,21 @@ class HeliumTrialWavefunction(nn.Module):
     def local_energy(self, x):
         return auto_hamiltonian_generator_atoms(self, 2, x) / self.wave(x)
 
+#    def local_energy(self, x):
+#        return -(self.alpha)**2+(self.alpha/(x[...,0])+self.alpha/(x[...,1])-2*(1/(x[...,0])+1/(x[...,1]))+1/(torch.sqrt(x[...,0]**2+x[...,1]**2+torch.abs(x[...,1])*torch.abs(x[...,0])*torch.cos(x[...,2]))))
 
+class ThreeElectronBasicAnsatzNoVandermonde(nn.Module):
+    def __init__(self, alpha):
+        super (ThreeElectronBasicAnsatzNoVandermonde, self).__init__()
+        self.alpha = nn.Parameter(alpha.clone().detach())
+
+    #def forward(self, x):
+        # outputs logprob
+        # 2.0 * because it's |\Psi|^2
+
+        #return Automatize log of mod squred calculatio
+    def three_elec_ansatz_sup_simple(self,x):
+        x = x.squeeze(dim=-1)
 
 class NelectronVander(nn.Module):
     #ansatz given by the Vandermonde determinant of the one electron wavefunctions e^(-alpha*r_i)
@@ -305,4 +319,3 @@ class NelectronVanderCuspWithMult(nn.Module):
         #input is tensor of size m x alpha.size or m x n x alpha.size
         a = torch.exp(-self.alpha*x.unsqueeze(-1)) - torch.exp(-self.alpha*x.unsqueeze(-2))
         return torch.exp(-torch.sum(1/x, -1)) * torch.exp(-self.beta * torch.sum(x, -1)) * torch.prod(a[...,torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[0],torch.triu(torch.ones(self.dim,self.dim), diagonal=1).nonzero(as_tuple = True)[1] ],-1)
- 
